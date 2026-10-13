@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oscoliat Puan Defteri</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#151733;--surf:#20244f;--line:#343a7a;--tx:#eceaff;--mut:#9ea3d6;--gold:#ffc247;--cy:#5de0d6;--bad:#ff7a90;
+--d:'Bricolage Grotesque',system-ui,sans-serif;--b:'Figtree',system-ui,sans-serif}
+*{box-sizing:border-box}html{background:var(--bg)}
+body{margin:0;color:var(--tx);font:16px/1.5 var(--b);background:var(--bg)}
+main{max-width:920px;margin:0 auto;padding:24px 16px 80px}
+h1,h2{font-family:var(--d);margin:0}h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.3rem;margin:40px 0 12px}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+header p{margin:4px 0 0;color:var(--mut)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:1px solid var(--line);background:var(--surf);padding:8px 14px;border-radius:8px}
+button:hover{border-color:var(--gold)}button.pri{background:var(--gold);color:#241a00;border-color:var(--gold);font-weight:600}
+button.link{background:none;border:0;color:var(--mut);padding:4px}
+:focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+input,select,textarea{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+.sum{display:flex;flex-wrap:wrap;gap:8px 32px;margin:28px 0 0}
+.sum b{font:800 2rem var(--d);color:var(--gold);display:block;line-height:1.1}.sum span{color:var(--mut);font-size:.9rem}
+.bar{display:flex;gap:8px;margin:12px 0}.bar input{flex:1}.bar select{width:auto}
+.row{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.row img,.ph{width:96px;height:45px;object-fit:cover;border-radius:6px;background:var(--surf)}
+.row h3{margin:0;font-size:1.05rem}.row small{color:var(--mut)}
+.sc{font:800 1.8rem var(--d);color:var(--gold);min-width:3.4ch;text-align:right}
+.note{grid-column:2/4;color:var(--mut);display:none;white-space:pre-wrap}.row.open .note{display:block}
+.acts{grid-column:2/4;display:none;gap:8px}.row.open .acts.on{display:flex}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:640px){.two{grid-template-columns:1fr}.row{grid-template-columns:72px 1fr auto}.row img,.ph{width:72px;height:34px}}
+.li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
+.gb{height:8px;background:var(--cy);border-radius:4px;margin-top:3px}
+dialog{background:var(--surf);color:var(--tx);border:1px solid var(--line);border-radius:12px;max-width:520px;width:calc(100% - 24px);padding:20px}
+dialog::backdrop{background:#0009}
+label{display:block;margin:12px 0 4px;color:var(--mut);font-size:.9rem}
+.res{max-height:180px;overflow:auto}.res button{display:block;width:100%;text-align:left;border-radius:0;border-width:0 0 1px}
+.pick{color:var(--cy);margin:6px 0}
+#err{color:var(--bad);min-height:1.4em}
+#rv{position:fixed;inset:0;background:var(--bg);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;z-index:9;cursor:pointer}
+#rv.on{display:flex}#rv img{max-width:min(460px,90vw);border-radius:10px;margin-bottom:18px}
+#rv h2{margin:0 0 4px;font-size:clamp(1.4rem,4vw,2.2rem)}
+#rn{font:800 clamp(7rem,32vw,16rem)/1 var(--d);color:var(--mut)}
+#rn.land{color:var(--gold);animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}
+#rv p{color:var(--mut);max-width:560px;min-height:1.5em}
+@media(prefers-reduced-motion:reduce){#rn.land{animation:none}}
+.chips{display:inline-flex;gap:4px;flex-wrap:wrap;margin-left:6px}.chip{font-size:.78rem;border:1px solid var(--line);border-radius:99px;padding:0 8px;color:var(--cy)}
+.st{font-size:.78rem;color:var(--mut)}.st.yarida{color:var(--bad)}.st.tekrar{color:var(--cy)}
+.fl{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:8px}
+.fl div{font-size:.85rem}.fl img{width:100%;border-radius:6px;display:block}
+.lh{display:flex;justify-content:space-between;align-items:center;margin-top:24px}.lh h3{margin:0;font:700 1.1rem var(--d)}
+.acts select{width:auto}
+.vt{grid-column:2/4;display:none;gap:10px;align-items:center}.row.open .vt{display:flex}.vt input{width:auto;flex:1}.vt b{min-width:2.5ch}
+a.link{color:var(--mut);font-size:.9rem;padding:4px;text-decoration:none}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div><h1>Oscoliat Puan Defteri</h1><p>Yayında oynanan her oyun, bittiğinde puanlanır.</p></div>
+  <div><a class="link" id="csv" href="/api/export.csv" hidden>CSV indir</a><button class="link" id="adm">Yayıncı girişi</button><button class="pri" id="add" hidden>Oyun ekle</button></div>
+</header>
+<div class="sum" id="sum"></div>
+
+<h2>Oyunlar</h2>
+<div class="bar"><input id="q" placeholder="Oyun veya not ara" aria-label="Ara">
+<select id="gf" aria-label="Tür"><option value="">Tüm türler</option></select>
+<select id="sf" aria-label="Durum"><option value="">Tüm durumlar</option><option value="bitirdi">Bitirdi</option><option value="yarida">Yarıda bıraktı</option><option value="tekrar">Tekrar oynanacak</option></select>
+<select id="tf" aria-label="Etiket"><option value="">Tüm etiketler</option></select>
+<select id="so" aria-label="Sırala"><option value="date">En yeni</option><option value="hi">Puan: yüksek</option><option value="lo">Puan: düşük</option></select></div>
+<div id="list"></div>
+
+<div class="lh"><h2 style="margin:40px 0 12px">Listeler</h2><button id="nl" hidden>Yeni liste</button></div>
+<div id="lists"></div>
+
+<div class="two">
+  <section><h2>En yüksek puanlılar</h2><div id="best"></div></section>
+  <section><h2>En düşük puanlılar</h2><div id="worst"></div></section>
+</div>
+<div class="two">
+  <section><h2>Türlere göre</h2><div id="gen"></div></section>
+  <section><h2>Aylık oyun sayısı</h2><div id="mon"></div></section>
+</div>
+</main>
+
+<dialog id="dl"><form method="dialog" id="fm" onsubmit="return false">
+  <h2 id="dt" style="margin-top:0">Oyun ekle</h2>
+  <div id="srch"><label for="sq">Steam'de ara</label><input id="sq" autocomplete="off"><div class="res" id="res"></div></div>
+  <div class="pick" id="pick"></div>
+  <label for="sc">Puan: <b id="scv">7</b> / 10</label><input id="sc" type="range" min="0" max="10" step="0.5" value="7">
+  <label for="dt2">Oynanma tarihi</label><input id="dt2" type="date">
+  <label for="stt">Durum</label><select id="stt"><option value="bitirdi">Bitirdi</option><option value="yarida">Yarıda bıraktı</option><option value="tekrar">Tekrar oynanacak</option></select>
+  <label for="tgs">Etiketler (virgülle ayır)</label><input id="tgs" placeholder="izleyici seçti, korku, bağış hedefi">
+  <label for="nt">Not</label><textarea id="nt" rows="3" maxlength="2000"></textarea>
+  <div id="err" role="alert"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="cx">Vazgeç</button><button class="pri" id="sv">Kaydet ve puanı aç</button></div>
+</form></dialog>
+<dialog id="lg"><form onsubmit="return false"><h2 style="margin-top:0">Yayıncı girişi</h2>
+  <label for="pw">Şifre</label><input id="pw" type="password" autocomplete="current-password">
+  <div id="lerr" style="color:var(--bad);min-height:1.4em" role="alert"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="lc">Vazgeç</button><button class="pri" id="lo">Giriş yap</button></div></form></dialog>
+<div id="rv"><img id="ri" alt=""><h2 id="rt"></h2><div id="rn">0</div><p id="rp"></p></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
+const api=async(u,o={})=>{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o,body:o.body&&JSON.stringify(o.body)});
+  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Hata');return j};
+let plays=[],lists=[],admin=false,pickId=null,pickName='',editId=null;
+
+async function load(){
+  const [p,s,me,ls]=await Promise.all([api('/api/plays'),api('/api/stats'),api('/api/me'),api('/api/lists')]);
+  plays=p;lists=ls;$('nl').hidden=!me.admin;admin=me.admin;$('add').hidden=!admin;$('csv').hidden=!admin;$('adm').textContent=admin?'Çıkış':'Yayıncı girişi';
+  $('sum').innerHTML=s.total?`<div><b>${s.total}</b><span>oyun</span></div><div><b>${fmt(s.average)}</b><span>ortalama puan</span></div>
+   <div><b>${esc(s.genres[0]?.name||'-')}</b><span>en çok oynanan tür</span></div>`:'<span>Henüz oyun yok.</span>';
+  const li=a=>a.length?a.map(x=>`<div class="li"><span>${esc(x.name)}</span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
+  $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);
+  const mx=Math.max(1,...s.genres.map(g=>g.count));
+  $('gen').innerHTML=s.genres.slice(0,8).map(g=>`<div style="margin:8px 0"><div class="li" style="border:0;padding:0"><span>${esc(g.name)} (${g.count})</span><span>ort. ${fmt(g.avg)}</span></div><div class="gb" style="width:${g.count/mx*100}%"></div></div>`).join('')||'<span style="color:var(--mut)">Veri yok</span>';
+  $('mon').innerHTML=s.months.slice(-12).map(m=>`<div class="li"><span>${m.month}</span><b>${m.count}</b></div>`).join('')||'<span style="color:var(--mut)">Veri yok</span>';
+  const cur=$('gf').value;$('gf').innerHTML='<option value="">Tüm türler</option>'+s.genres.map(g=>`<option>${esc(g.name)}</option>`).join('');$('gf').value=cur;
+  const ct=$('tf').value;$('tf').innerHTML='<option value="">Tüm etiketler</option>'+s.tags.map(t=>`<option>${esc(t.name)}</option>`).join('');$('tf').value=ct;
+  render();renderLists();
+}
+const voted=()=>{try{return JSON.parse(localStorage.getItem('voted')||'[]')}catch{return[]}};
+const markVoted=id=>{try{localStorage.setItem('voted',JSON.stringify([...voted(),id]))}catch{}};
+$('list').addEventListener('input',e=>{if(e.target.matches('.vt input'))e.target.nextElementSibling.textContent=fmt(+e.target.value)});
+const STN={bitirdi:'Bitirdi',yarida:'Yarıda bıraktı',tekrar:'Tekrar oynanacak'};
+function renderLists(){
+  $('lists').innerHTML=lists.map(l=>`<div><div class="lh"><h3>${esc(l.name)} (${l.items.length})</h3>${admin?`<button class="link" data-dl="${l.id}">Listeyi sil</button>`:''}</div>
+   <div class="fl">${l.items.map(i=>`<div>${i.image?`<img src="${esc(i.image)}" alt="" loading="lazy">`:''}${esc(i.name)} <b style="color:var(--gold)">${i.score==null?'':fmt(i.score)}</b>${admin?` <button class="link" data-ri="${l.id}:${i.appid}" aria-label="Listeden çıkar">×</button>`:''}</div>`).join('')||'<span style="color:var(--mut)">Boş liste</span>'}</div></div>`).join('')||'<span style="color:var(--mut)">Henüz liste yok.</span>';
+}
+$('lists').onclick=async e=>{const d=e.target.dataset;
+  if(d.dl&&confirm('Liste silinsin mi?'))await api('/api/lists/'+d.dl,{method:'DELETE'});
+  else if(d.ri){const [l,a]=d.ri.split(':');await api(`/api/lists/${l}/items/${a}`,{method:'DELETE'})}else return;load()};
+$('nl').onclick=async()=>{const n=prompt('Liste adı (örn. 2026 en iyileri)');if(n){await api('/api/lists',{method:'POST',body:{name:n}});load()}};
+function render(){
+  const q=$('q').value.toLowerCase(),g=$('gf').value,so=$('so').value;
+  let a=plays.filter(p=>(!g||p.genres.includes(g))&&(!$('sf').value||p.status===$('sf').value)&&(!$('tf').value||p.tags.includes($('tf').value))&&(!q||(p.name+' '+p.note).toLowerCase().includes(q)));
+  if(so==='hi')a.sort((x,y)=>y.score-x.score);if(so==='lo')a.sort((x,y)=>x.score-y.score);
+  $('list').innerHTML=a.map(p=>`<div class="row" data-id="${p.id}">
+   ${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'<div class="ph"></div>'}
+   <div><h3>${esc(p.name)}</h3><small>${esc(p.played_at)} · ${esc(p.genres.join(', ')||'Tür yok')}${p.v_n?` · izleyici ${fmt(p.v_avg)} (${p.v_n} oy)`:''}</small> <span class="st ${p.status}">${STN[p.status]||''}</span>${p.tags.length?`<span class="chips">${p.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</span>`:''}</div><div class="sc">${fmt(p.score)}</div>
+   ${p.note?`<div class="note">${esc(p.note)}</div>`:''}
+   <div class="vt">${voted().includes(p.id)?'Oyun kaydedildi, teşekkürler.':`<span>Sen kaç verirdin?</span><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><b>7</b><button data-a="vote">Oy ver</button>`}</div>
+   <div class="acts ${admin?'on':''}"><button data-a="rv">Puanı tekrar aç</button><button data-a="ov">Overlay'e gönder</button>${lists.length?`<select data-a="al" aria-label="Listeye ekle"><option value="">Listeye ekle…</option>${lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select>`:''}<button data-a="ed">Düzenle</button><button data-a="del">Sil</button></div></div>`).join('')||'<p style="color:var(--mut)">Eşleşen oyun yok.</p>';
+}
+$('list').onclick=e=>{const r=e.target.closest('.row');if(!r)return;const p=plays.find(x=>x.id==r.dataset.id),a=e.target.dataset.a;
+  if(a==='rv')return reveal(p);
+  if(a==='al')return;
+  if(e.target.closest('.vt')){if(a==='vote')api(`/api/plays/${p.id}/vote`,{method:'POST',body:{score:+r.querySelector('.vt input').value}}).then(()=>{markVoted(p.id);load()}).catch(x=>{alert(x.message);if(/zaten/.test(x.message)){markVoted(p.id);load()}});return}
+  if(a==='ov')return api('/api/overlay/show',{method:'POST',body:{play_id:p.id}}).then(()=>alert('Overlay\'e gönderildi'));
+  if(a==='ed'){editId=p.id;pickId=p.appid;openDlg(p);return}
+  if(a==='del'){if(confirm(p.name+' kaydı silinsin mi?'))api('/api/plays/'+p.id,{method:'DELETE'}).then(load);return}
+  if(!a)r.classList.toggle('open')};
+['q','gf','sf','tf','so'].forEach(i=>$(i).oninput=render);
+$('list').onchange=async e=>{if(e.target.dataset.a!=='al'||!e.target.value)return;const r=e.target.closest('.row'),p=plays.find(x=>x.id==r.dataset.id);
+  await api(`/api/lists/${e.target.value}/items`,{method:'POST',body:{appid:p.appid}});load()};
+
+// Giriş
+$('adm').onclick=async()=>{if(admin){await api('/api/logout',{method:'POST'});load()}else{$('lerr').textContent='';$('lg').showModal();$('pw').focus()}};
+$('lc').onclick=()=>$('lg').close();
+$('lo').onclick=async()=>{try{await api('/api/login',{method:'POST',body:{password:$('pw').value}});$('pw').value='';$('lg').close();load()}catch(e){$('lerr').textContent=e.message}};
+$('pw').onkeydown=e=>e.key==='Enter'&&$('lo').click();
+
+// Oyun ekle / düzenle
+function openDlg(p){
+  $('err').textContent='';$('res').innerHTML='';$('sq').value='';
+  $('dt').textContent=p?'Kaydı düzenle':'Oyun ekle';$('srch').hidden=!!p;
+  $('pick').textContent=p?p.name:'';pickName=p?p.name:'';
+  $('stt').value=p?p.status:'bitirdi';$('tgs').value=p?p.tags.join(', '):'';$('sc').value=p?p.score:7;$('scv').textContent=$('sc').value;
+  $('dt2').value=p?p.played_at:new Date().toISOString().slice(0,10);$('nt').value=p?p.note:'';$('dl').showModal();
+}
+$('add').onclick=()=>{editId=null;pickId=null;openDlg()};
+$('cx').onclick=()=>$('dl').close();
+$('sc').oninput=()=>$('scv').textContent=fmt(+$('sc').value);
+let t;$('sq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{
+  try{const r=await api('/api/search?q='+encodeURIComponent($('sq').value));
+  $('res').innerHTML=r.length?r.map(x=>`<button type="button" data-id="${x.appid}" data-n="${esc(x.name)}">${esc(x.name)}</button>`).join(''):'<small style="color:var(--mut)">Sonuç yok. Steam listesini senkronladın mı?</small>'}catch(e){$('err').textContent=e.message}},250)};
+$('res').onclick=e=>{const b=e.target.closest('button');if(!b)return;pickId=+b.dataset.id;pickName=b.dataset.n;$('pick').textContent='Seçilen: '+pickName;$('res').innerHTML=''};
+$('sv').onclick=async()=>{
+  if(!pickId)return $('err').textContent='Önce bir oyun seç.';
+  const body={appid:pickId,name:pickName,score:+$('sc').value,played_at:$('dt2').value,note:$('nt').value,status:$('stt').value,tags:$('tgs').value.split(',')};
+  try{const r=editId?(await api('/api/plays/'+editId,{method:'PUT',body}),null):await api('/api/plays',{method:'POST',body});
+    $('dl').close();await load();if(r)reveal(r)}catch(e){$('err').textContent=e.message}};
+
+// Puan açıklama anı
+let rt;
+function reveal(p){
+  clearInterval(rt);$('ri').src=p.image||'';$('ri').hidden=!p.image;$('rt').textContent=p.name;$('rp').textContent='';
+  const n=$('rn');n.className='';$('rv').classList.add('on');
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,end=Date.now()+(reduce?0:2600);
+  rt=setInterval(()=>{ if(Date.now()<end){n.textContent=fmt(Math.floor(Math.random()*21)/2);return}
+    clearInterval(rt);n.textContent=fmt(p.score);n.className='land';$('rp').textContent=p.note||''},90);
+}
+$('rv').onclick=()=>{clearInterval(rt);$('rv').classList.remove('on')};
+load();
+</script>
+</body>
+</html>

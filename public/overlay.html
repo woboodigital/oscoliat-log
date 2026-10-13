@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="tr"><head><meta charset="utf-8"><title>Oscoliat overlay</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:transparent;font-family:'Figtree',system-ui,sans-serif;color:#eceaff}
+#c{position:fixed;left:32px;bottom:32px;display:flex;gap:22px;align-items:center;background:#151733f2;border:3px solid #ffc247;border-radius:16px;padding:18px 28px;opacity:0;transform:translateY(24px);transition:opacity .4s,transform .4s}
+#c.on{opacity:1;transform:none}
+img{width:240px;border-radius:8px;display:block}
+h1{font:800 34px/1.1 'Bricolage Grotesque',sans-serif;margin:0 0 4px;max-width:420px}
+#n{font:800 120px/1 'Bricolage Grotesque',sans-serif;color:#9ea3d6;min-width:2.6ch}
+#n.land{color:#ffc247;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}
+#v{font-size:24px;color:#5de0d6;min-height:30px}
+</style></head><body>
+<div id="c"><img id="i" alt=""><div><h1 id="t"></h1><div id="n">0</div><div id="v"></div></div></div>
+<script>
+const $=id=>document.getElementById(id),fmt=n=>Number.isInteger(n)?n:n.toFixed(1),SHOW=20000;
+let last=null,timer,hide;
+function start(p,elapsed){
+  clearInterval(timer);clearTimeout(hide);
+  $('i').src=p.image||'';$('i').hidden=!p.image;$('t').textContent=p.name;$('v').textContent='';$('n').className='';
+  $('c').classList.add('on');
+  const end=Date.now()+2600;
+  timer=setInterval(()=>{
+    if(Date.now()<end){$('n').textContent=fmt(Math.floor(Math.random()*21)/2);return}
+    clearInterval(timer);$('n').textContent=fmt(p.score);$('n').className='land';
+    $('v').textContent=p.v_n?`İzleyici: ${fmt(p.v_avg)} (${p.v_n} oy)`:'';
+  },90);
+  hide=setTimeout(()=>$('c').classList.remove('on'),Math.max(1000,SHOW-elapsed));
+}
+async function poll(){
+  try{const d=await (await fetch('/api/overlay',{cache:'no-store'})).json();
+    if(last===null){last=d.nonce;if(d.play&&d.elapsed<SHOW)start(d.play,d.elapsed)}
+    else if(d.nonce!==last){last=d.nonce;if(d.play)start(d.play,d.elapsed)}}catch(e){}
+}
+poll();setInterval(poll,2000);
+</script></body></html>
