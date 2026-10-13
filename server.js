@@ -38,12 +38,19 @@ app.post('/api/logout', (_, res) => { res.setHeader('Set-Cookie', 'sess=; Path=/
 app.get('/api/me', (req, res) => res.json({ admin: isAdmin(req) }));
 
 // --- Steam arama (yerel liste) ---
-app.get('/api/search', need, (req, res) => {
+app.get('/api/search', need, async (req, res) => {
   const q = String(req.query.q || '').trim();
   if (q.length < 2) return res.json([]);
   const like = '%' + q.replace(/[%_]/g, '') + '%';
-  res.json(db.catalog.prepare(`SELECT appid, name FROM apps WHERE name LIKE ? COLLATE NOCASE
-    ORDER BY (name LIKE ? COLLATE NOCASE) DESC, length(name) LIMIT 15`).all(like, q + '%'));
+  const local = db.catalog.prepare(`SELECT appid, name FROM apps WHERE name LIKE ? COLLATE NOCASE
+    ORDER BY (name LIKE ? COLLATE NOCASE) DESC, length(name) LIMIT 15`).all(like, q + '%');
+  if (local.length) return res.json(local);
+  // Yerel liste boşsa Steam mağaza aramasını canlı kullan (anahtar gerektirmez)
+  try {
+    const r = await fetch(`https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(q)}&l=english&cc=us`);
+    const j = await r.json();
+    res.json((j.items || []).filter(i => i.type === 'app').slice(0, 15).map(i => ({ appid: i.id, name: i.name })));
+  } catch (e) { console.warn('Steam araması başarısız:', e.message); res.json([]); }
 });
 
 async function ensureGame(appid, fallbackName) {
