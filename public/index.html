@@ -83,52 +83,113 @@ nav.top{display:flex;justify-content:space-between;align-items:center;gap:10px;f
 .vc span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.vc small{color:var(--mut)}
 footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--mut);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.9rem}
 footer a{color:var(--mut);margin-left:14px}
+/* ---- Düzen: bölümler, paneller, kaydırıcı ---- */
+main{max-width:1040px}
+.hero{padding:28px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,#ffffff12,#ffffff04);margin:22px 0 0}
+.hero p{max-width:56ch}
+.sec{margin-top:56px}
+.sh{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.sh h2{margin:0;font-size:1.5rem}.sh h2::before{content:'';display:inline-block;width:6px;height:1em;background:var(--gold);border-radius:3px;margin-right:10px;vertical-align:-.12em}
+.sh p{margin:3px 0 0 16px;color:var(--mut);font-size:.95rem}
+.panel{background:#ffffff09;border:1px solid var(--line);border-radius:16px;padding:16px}
+.panel .bar{margin:0 0 10px}.panel .row:first-child{border-top:0}.panel .vw{margin-bottom:6px}
+.pt{margin:0 0 10px;font:700 1.05rem var(--d)}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:0 0 18px}
+.sum>div{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.sum b{font-size:1.7rem;overflow-wrap:anywhere}
+.arr{display:flex;gap:8px}.arr button{width:40px;height:40px;padding:0;font-size:1.4rem;line-height:1;border-radius:50%}.arr button:disabled{opacity:.35;cursor:default;border-color:var(--line)}
+.vg{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:2px}.vg::-webkit-scrollbar{display:none}
+.vc{flex:0 0 clamp(220px,30%,300px);scroll-snap-align:start}
+.about{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
+.about p{margin:0 0 12px}.tags{display:flex;gap:8px;flex-wrap:wrap}.tags span{border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:.88rem;color:var(--cy)}
+.about ol{margin:0;padding-left:20px;color:var(--mut)}.about li{margin:6px 0}.about li b{color:var(--tx);font-weight:600}
+.plat{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.plat a{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px 16px;color:var(--tx);text-decoration:none;display:flex;flex-direction:column;gap:2px}
+.plat a b{font:700 1.1rem var(--d)}.plat a span{color:var(--mut);font-size:.9rem}.plat a:hover{border-color:var(--gold)}.plat a.kk{border-color:#53fc1888}.plat a.kk b{color:#53fc18}
+/* Kick yeşili */
+.soc a.k{background:#53fc18;color:#0a1a00;border-color:#53fc18}
+.live{background:#53fc1822;border-color:#53fc18;color:#e6ffd9}.live i{background:#53fc18}
+@media(max-width:760px){.about{grid-template-columns:1fr}.hero{padding:20px}.vc{flex-basis:70%}}
 </style>
 </head>
 <body>
 <main>
 <nav class="top">
-  <div class="r"><a class="link" href="#puan">Puan defteri</a><a class="link" href="#videolar">Videolar</a></div>
+  <div class="r"><a class="link" href="#puan">Puan defteri</a><a class="link" href="#videolar">Videolar</a><a class="link" href="#hakkinda">Hakkında</a></div>
   <div class="r"><button class="link" id="lvb" hidden>Rozet: otomatik</button><a class="link" id="csv" href="/api/export.csv" hidden>CSV indir</a><button class="link" id="adm">Yayıncı girişi</button><button class="pri" id="add" hidden>Oyun ekle</button></div>
 </nav>
+
 <section class="hero">
   <img class="lg" src="/logo.webp" width="132" height="132" alt="Oscoliat logosu">
   <div>
     <a class="live" id="lv" href="https://kick.com/oscoliat" target="_blank" rel="noopener" hidden><i></i><span id="lvt">Şimdi yayında</span></a>
     <h1>Oscoliat</h1>
-    <p>Hikayeli ve eğlenceli oyunlar, yayında. Biten her oyun burada puanlanır.</p>
+    <p>Hikayeli, eğlenceli ve komik oyunlar, ekip oyunları ve yeni oyunlara ilk bakış. Türkçe, Kick'te canlı, YouTube'da kayıtlı. Biten her oyun burada puanlanır.</p>
     <div class="soc"><a class="k" href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick'te izle</a><a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></div>
   </div>
 </section>
-<h2 id="puan" style="margin-top:36px">Puan defteri</h2>
-<p style="color:var(--mut);margin:0">Yayında oynanan her oyun, bittiğinde puanlanır.</p>
-<div class="sum" id="sum"></div>
 
-<h2>Oyunlar</h2>
-<div class="bar"><input id="q" placeholder="Oyun veya not ara" aria-label="Ara">
-<select id="gf" aria-label="Tür"><option value="">Tüm türler</option></select>
-<select id="sf" aria-label="Durum"><option value="">Tüm durumlar</option><option value="bitirdi">Bitirdi</option><option value="yarida">Yarıda bıraktı</option><option value="tekrar">Tekrar oynanacak</option></select>
-<select id="tf" aria-label="Etiket"><option value="">Tüm etiketler</option></select>
-<select id="so" aria-label="Sırala"><option value="date">En yeni</option><option value="hi">Puan: yüksek</option><option value="lo">Puan: düşük</option></select></div>
-<div class="vw"><button class="on" id="vlist">Liste</button><button id="vtier">Tier listesi</button></div>
-<div id="list"></div><div id="tier" hidden></div>
+<section class="sec" id="puan">
+  <div class="sh"><div><h2>Puan defteri</h2><p>Yayında oynanan her oyun, bittiğinde puanlanır.</p></div></div>
+  <div class="sum" id="sum"></div>
+  <div class="panel">
+    <div class="bar"><input id="q" placeholder="Oyun veya not ara" aria-label="Ara">
+    <select id="gf" aria-label="Tür"><option value="">Tüm türler</option></select>
+    <select id="sf" aria-label="Durum"><option value="">Tüm durumlar</option><option value="bitirdi">Bitirdi</option><option value="yarida">Yarıda bıraktı</option><option value="tekrar">Tekrar oynanacak</option></select>
+    <select id="tf" aria-label="Etiket"><option value="">Tüm etiketler</option></select>
+    <select id="so" aria-label="Sırala"><option value="date">En yeni</option><option value="hi">Puan: yüksek</option><option value="lo">Puan: düşük</option></select></div>
+    <div class="vw"><button class="on" id="vlist">Liste</button><button id="vtier">Tier listesi</button></div>
+    <div id="list"></div><div id="tier" hidden></div>
+  </div>
+</section>
 
-<section id="vsec" hidden><h2 id="videolar" style="margin-top:44px">Son videolar</h2><div class="vg" id="vg"></div></section>
+<section class="sec" id="vsec" hidden>
+  <div class="sh"><div><h2 id="videolar">Son videolar</h2><p>YouTube kanalından en yeni içerikler.</p></div>
+    <div class="arr"><button id="vp" aria-label="Önceki videolar">‹</button><button id="vn" aria-label="Sonraki videolar">›</button></div></div>
+  <div class="vg" id="vg"></div>
+</section>
 
-<div class="lh"><h2 style="margin:40px 0 12px">Listeler</h2><button id="nl" hidden>Yeni liste</button></div>
-<div id="lists"></div>
+<section class="sec" id="hakkinda">
+  <div class="sh"><div><h2>Oscoliat hakkında</h2></div></div>
+  <div class="about">
+    <div class="panel">
+      <p>Oscoliat, Türkçe oyun içerikleri üreten bir yayıncı. Kick'te canlı yayın yapıyor, YouTube kanalında oynadığı oyunların videolarını paylaşıyor. Kanalın odağında hikayeli ve eğlenceli oyunlar, ekiple oynanan oyunlar ve yeni oyunlara ilk bakışlar var.</p>
+      <div class="tags"><span>Hikayeli oyunlar</span><span>Komik oyunlar</span><span>Ekip oyunları</span><span>Oyun ilk bakış</span><span>Türkçe içerik</span></div>
+    </div>
+    <div class="panel">
+      <h3 class="pt">Puan defteri nasıl çalışır?</h3>
+      <ol><li><b>Oyun biter.</b> Yayında bir oyun tamamlanır.</li><li><b>Puan açılır.</b> Oscoliat oyuna 10 üzerinden puan verir, puan yayında açıklanır.</li><li><b>Defterde kalır.</b> Puan ve not burada saklanır, istatistikler kendiliğinden güncellenir.</li><li><b>Sen de oyla.</b> Bir oyuna tıklayıp "Sen kaç verirdin?" diyebilirsin.</li></ol>
+    </div>
+  </div>
+  <div class="plat">
+    <a class="kk" href="https://kick.com/oscoliat" target="_blank" rel="noopener"><b>Kick</b><span>Canlı yayın</span></a>
+    <a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener"><b>YouTube</b><span>Oyun videoları</span></a>
+    <a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener"><b>Discord</b><span>Topluluk sohbeti</span></a>
+    <a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener"><b>Instagram</b><span>Paylaşımlar</span></a>
+  </div>
+</section>
 
-<div class="two">
-  <section><h2>En yüksek puanlılar</h2><div id="best"></div></section>
-  <section id="sw"><h2>En düşük puanlılar</h2><div id="worst"></div></section>
-</div>
-<div class="two">
-  <section><h2>Türlere göre</h2><div id="gen"></div></section>
-  <section><h2>Aylık oyun sayısı</h2><div id="mon"></div></section>
-</div>
-<h2>Yıllık özet</h2>
-<div class="bar"><select id="yy" aria-label="Yıl" style="max-width:140px"></select><button id="ydl" hidden>Görseli indir</button></div>
-<div id="yc"></div>
+<section class="sec">
+  <div class="sh"><div><h2>Listeler</h2><p>Oscoliat'ın seçtiği oyun koleksiyonları.</p></div><button id="nl" hidden>Yeni liste</button></div>
+  <div class="panel"><div id="lists"></div></div>
+</section>
+
+<section class="sec">
+  <div class="sh"><div><h2>İstatistikler</h2></div></div>
+  <div class="two">
+    <div class="panel"><h3 class="pt">En yüksek puanlılar</h3><div id="best"></div></div>
+    <div class="panel" id="sw"><h3 class="pt">En düşük puanlılar</h3><div id="worst"></div></div>
+    <div class="panel"><h3 class="pt">Türlere göre</h3><div id="gen"></div></div>
+    <div class="panel"><h3 class="pt">Aylık oyun sayısı</h3><div id="mon"></div></div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="sh"><div><h2>Yıllık özet</h2><p>Paylaşılabilir özet kartı.</p></div>
+    <div class="bar" style="margin:0"><select id="yy" aria-label="Yıl" style="max-width:120px"></select><button id="ydl" hidden>Görseli indir</button></div></div>
+  <div id="yc"></div>
+</section>
+
 <footer><span>© Oscoliat · Oyun puan defteri</span><span><a href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick</a><a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></span></footer>
 </main>
 
@@ -164,8 +225,8 @@ let plays=[],lists=[],admin=false,pickId=null,pickName='',editId=null;
 async function load(){
   const [p,s,me,ls]=await Promise.all([api('/api/plays'),api('/api/stats'),api('/api/me'),api('/api/lists')]);
   plays=p;lists=ls;$('nl').hidden=!me.admin;admin=me.admin;$('add').hidden=!admin;$('csv').hidden=!admin;$('lvb').hidden=!admin;$('adm').textContent=admin?'Çıkış':'Yayıncı girişi';
-  $('sum').innerHTML=s.total?`<div><b>${s.total}</b><span>oyun</span></div><div><b>${fmt(s.average)}</b><span>ortalama puan</span></div>
-   <div><b>${esc(tg(s.genres[0]?.name||'-'))}</b><span>en çok oynanan tür</span></div>`:'<span>Henüz oyun yok.</span>';
+  $('sum').innerHTML=s.total?`<div><b>${s.total}</b><span>oyun puanlandı</span></div><div><b>${fmt(s.average)}</b><span>ortalama puan</span></div>
+   <div><b>${esc(tg(s.genres[0]?.name||'-'))}</b><span>en çok oynanan tür</span></div><div><b>${esc(s.best[0].name)}</b><span>en yüksek puan: ${fmt(s.best[0].score)}</span></div>`:'<span style="color:var(--mut)">Henüz oyun yok.</span>';
   const li=a=>a.length?a.map(x=>`<div class="li"><span>${esc(x.name)}</span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
   $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);$('sw').hidden=s.total<6;
   const mx=Math.max(1,...s.genres.map(g=>g.count));
@@ -295,10 +356,14 @@ $('ydl').onclick=async()=>{
   c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`oscoliat-${d.y}-ozet.png`;a.click()},'image/png');
 };
 async function loadVideos(){try{const v=await api('/api/videos');$('vsec').hidden=!v.length;
-  $('vg').innerHTML=v.map(x=>`<a class="vc" href="${esc(x.url)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${esc(x.id)}/mqdefault.jpg" alt="" loading="lazy"><span>${esc(x.title)}</span><small>${new Date(x.published).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</small></a>`).join('')}catch{$('vsec').hidden=true}}
+  $('vg').innerHTML=v.map(x=>`<a class="vc" href="${esc(x.url)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${esc(x.id)}/mqdefault.jpg" alt="" loading="lazy"><span>${esc(x.title)}</span><small>${new Date(x.published).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</small></a>`).join('');vcUpd()}catch{$('vsec').hidden=true}}
 let lvMode='auto';
 async function loadLive(){try{const l=await api('/api/live');lvMode=l.mode;$('lv').hidden=!l.live;$('lvt').textContent=l.title?'Yayında: '+l.title:'Şimdi yayında';$('lvb').textContent='Rozet: '+({auto:'otomatik',on:'açık',off:'kapalı'}[l.mode])}catch{}}
 $('lvb').onclick=async()=>{await api('/api/live/override',{method:'POST',body:{mode:{auto:'on',on:'off',off:'auto'}[lvMode]}});loadLive()};
+const vcUpd=()=>{const g=$('vg'),can=g.scrollWidth>g.clientWidth+2;$('vp').hidden=$('vn').hidden=!can;$('vp').disabled=g.scrollLeft<=2;$('vn').disabled=g.scrollLeft+g.clientWidth>=g.scrollWidth-2};
+$('vp').onclick=()=>$('vg').scrollBy({left:-$('vg').clientWidth*.9,behavior:'smooth'});
+$('vn').onclick=()=>$('vg').scrollBy({left:$('vg').clientWidth*.9,behavior:'smooth'});
+$('vg').addEventListener('scroll',vcUpd);addEventListener('resize',vcUpd);
 loadVideos();loadLive();setInterval(loadLive,60000);
 load();
 </script>
