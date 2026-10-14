@@ -57,6 +57,14 @@ label{display:block;margin:12px 0 4px;color:var(--mut);font-size:.9rem}
 .acts select{width:auto}
 .vt{grid-column:2/4;display:none;gap:10px;align-items:center}.row.open .vt{display:flex}.vt input{width:auto;flex:1}.vt b{min-width:2.5ch}
 a.link{color:var(--mut);font-size:.9rem;padding:4px;text-decoration:none}
+.vw{display:flex;gap:6px;margin:0 0 10px}.vw button.on{background:var(--gold);color:#241a00;border-color:var(--gold);font-weight:600}
+.tr{display:flex;gap:12px;border-top:1px solid var(--line);padding:10px 0}
+.tl{flex:0 0 56px;display:grid;place-items:center;border-radius:8px;font:800 1.8rem var(--d);color:#1a1300;min-height:56px}
+.tg{display:flex;flex-wrap:wrap;gap:8px;flex:1;align-items:flex-start;align-content:center}
+.tc{width:112px;font-size:.75rem;color:var(--mut);line-height:1.25}.tc img{width:100%;border-radius:6px;display:block;margin-bottom:2px}.tc .ph{width:100%;height:52px}
+.yr{background:linear-gradient(135deg,#2a2f6b,#1b1e44);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:560px}
+.yr h3{margin:0;font:800 1.6rem var(--d)}.yr .big{display:flex;gap:28px;margin:16px 0;color:var(--mut);font-size:.9rem}.yr .big b{font:800 2.4rem var(--d);color:var(--gold);display:block;line-height:1}
+.yr .bg{display:flex;gap:14px;align-items:center;margin:12px 0}.yr .bg img{width:150px;border-radius:8px}.yr ol{margin:10px 0 0;padding-left:20px}
 </style>
 </head>
 <body>
@@ -73,25 +81,30 @@ a.link{color:var(--mut);font-size:.9rem;padding:4px;text-decoration:none}
 <select id="sf" aria-label="Durum"><option value="">Tüm durumlar</option><option value="bitirdi">Bitirdi</option><option value="yarida">Yarıda bıraktı</option><option value="tekrar">Tekrar oynanacak</option></select>
 <select id="tf" aria-label="Etiket"><option value="">Tüm etiketler</option></select>
 <select id="so" aria-label="Sırala"><option value="date">En yeni</option><option value="hi">Puan: yüksek</option><option value="lo">Puan: düşük</option></select></div>
-<div id="list"></div>
+<div class="vw"><button class="on" id="vlist">Liste</button><button id="vtier">Tier listesi</button></div>
+<div id="list"></div><div id="tier" hidden></div>
 
 <div class="lh"><h2 style="margin:40px 0 12px">Listeler</h2><button id="nl" hidden>Yeni liste</button></div>
 <div id="lists"></div>
 
 <div class="two">
   <section><h2>En yüksek puanlılar</h2><div id="best"></div></section>
-  <section><h2>En düşük puanlılar</h2><div id="worst"></div></section>
+  <section id="sw"><h2>En düşük puanlılar</h2><div id="worst"></div></section>
 </div>
 <div class="two">
   <section><h2>Türlere göre</h2><div id="gen"></div></section>
   <section><h2>Aylık oyun sayısı</h2><div id="mon"></div></section>
 </div>
+<h2>Yıllık özet</h2>
+<div class="bar"><select id="yy" aria-label="Yıl" style="max-width:140px"></select><button id="ydl" hidden>Görseli indir</button></div>
+<div id="yc"></div>
 </main>
 
 <dialog id="dl"><form method="dialog" id="fm" onsubmit="return false">
   <h2 id="dt" style="margin-top:0">Oyun ekle</h2>
   <div id="srch"><label for="sq">Steam'de ara</label><input id="sq" autocomplete="off"><div class="res" id="res"></div></div>
   <div class="pick" id="pick"></div>
+  <div id="nmw" hidden><label for="nm">Oyun adı</label><input id="nm" maxlength="200"></div>
   <label for="sc">Puan: <b id="scv">7</b> / 10</label><input id="sc" type="range" min="0" max="10" step="0.5" value="7">
   <label for="dt2">Oynanma tarihi</label><input id="dt2" type="date">
   <label for="stt">Durum</label><select id="stt"><option value="bitirdi">Bitirdi</option><option value="yarida">Yarıda bıraktı</option><option value="tekrar">Tekrar oynanacak</option></select>
@@ -110,6 +123,8 @@ a.link{color:var(--mut);font-size:.9rem;padding:4px;text-decoration:none}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>Number.isInteger(n)?n:n.toFixed(1);
+const TRG={Action:'Aksiyon',Adventure:'Macera',Casual:'Rahat',Indie:'Bağımsız',RPG:'Rol yapma',Simulation:'Simülasyon',Strategy:'Strateji',Sports:'Spor',Racing:'Yarış','Massively Multiplayer':'Çok oyunculu','Free To Play':'Ücretsiz','Early Access':'Erken erişim',Horror:'Korku',Puzzle:'Bulmaca',Platformer:'Platform',Violent:'Şiddet',Gore:'Kan','Co-op':'Co-op'};
+const tg=g=>TRG[g]||g;
 const api=async(u,o={})=>{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o,body:o.body&&JSON.stringify(o.body)});
   const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Hata');return j};
 let plays=[],lists=[],admin=false,pickId=null,pickName='',editId=null;
@@ -118,15 +133,15 @@ async function load(){
   const [p,s,me,ls]=await Promise.all([api('/api/plays'),api('/api/stats'),api('/api/me'),api('/api/lists')]);
   plays=p;lists=ls;$('nl').hidden=!me.admin;admin=me.admin;$('add').hidden=!admin;$('csv').hidden=!admin;$('adm').textContent=admin?'Çıkış':'Yayıncı girişi';
   $('sum').innerHTML=s.total?`<div><b>${s.total}</b><span>oyun</span></div><div><b>${fmt(s.average)}</b><span>ortalama puan</span></div>
-   <div><b>${esc(s.genres[0]?.name||'-')}</b><span>en çok oynanan tür</span></div>`:'<span>Henüz oyun yok.</span>';
+   <div><b>${esc(tg(s.genres[0]?.name||'-'))}</b><span>en çok oynanan tür</span></div>`:'<span>Henüz oyun yok.</span>';
   const li=a=>a.length?a.map(x=>`<div class="li"><span>${esc(x.name)}</span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
-  $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);
+  $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);$('sw').hidden=s.total<6;
   const mx=Math.max(1,...s.genres.map(g=>g.count));
-  $('gen').innerHTML=s.genres.slice(0,8).map(g=>`<div style="margin:8px 0"><div class="li" style="border:0;padding:0"><span>${esc(g.name)} (${g.count})</span><span>ort. ${fmt(g.avg)}</span></div><div class="gb" style="width:${g.count/mx*100}%"></div></div>`).join('')||'<span style="color:var(--mut)">Veri yok</span>';
+  $('gen').innerHTML=s.genres.slice(0,8).map(g=>`<div style="margin:8px 0"><div class="li" style="border:0;padding:0"><span>${esc(tg(g.name))} (${g.count})</span><span>ort. ${fmt(g.avg)}</span></div><div class="gb" style="width:${g.count/mx*100}%"></div></div>`).join('')||'<span style="color:var(--mut)">Veri yok</span>';
   $('mon').innerHTML=s.months.slice(-12).map(m=>`<div class="li"><span>${m.month}</span><b>${m.count}</b></div>`).join('')||'<span style="color:var(--mut)">Veri yok</span>';
-  const cur=$('gf').value;$('gf').innerHTML='<option value="">Tüm türler</option>'+s.genres.map(g=>`<option>${esc(g.name)}</option>`).join('');$('gf').value=cur;
+  const cur=$('gf').value;$('gf').innerHTML='<option value="">Tüm türler</option>'+s.genres.map(g=>`<option value="${esc(g.name)}">${esc(tg(g.name))}</option>`).join('');$('gf').value=cur;
   const ct=$('tf').value;$('tf').innerHTML='<option value="">Tüm etiketler</option>'+s.tags.map(t=>`<option>${esc(t.name)}</option>`).join('');$('tf').value=ct;
-  render();renderLists();
+  render();renderLists();renderYear();
 }
 const voted=()=>{try{return JSON.parse(localStorage.getItem('voted')||'[]')}catch{return[]}};
 const markVoted=id=>{try{localStorage.setItem('voted',JSON.stringify([...voted(),id]))}catch{}};
@@ -144,9 +159,10 @@ function render(){
   const q=$('q').value.toLowerCase(),g=$('gf').value,so=$('so').value;
   let a=plays.filter(p=>(!g||p.genres.includes(g))&&(!$('sf').value||p.status===$('sf').value)&&(!$('tf').value||p.tags.includes($('tf').value))&&(!q||(p.name+' '+p.note).toLowerCase().includes(q)));
   if(so==='hi')a.sort((x,y)=>y.score-x.score);if(so==='lo')a.sort((x,y)=>x.score-y.score);
+  renderTier(a);
   $('list').innerHTML=a.map(p=>`<div class="row" data-id="${p.id}">
    ${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'<div class="ph"></div>'}
-   <div><h3>${esc(p.name)}</h3><small>${esc(p.played_at)} · ${esc(p.genres.join(', ')||'Tür yok')}${p.v_n?` · izleyici ${fmt(p.v_avg)} (${p.v_n} oy)`:''}</small> <span class="st ${p.status}">${STN[p.status]||''}</span>${p.tags.length?`<span class="chips">${p.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</span>`:''}</div><div class="sc">${fmt(p.score)}</div>
+   <div><h3>${esc(p.name)}</h3><small>${esc(p.played_at)} · ${esc(p.genres.map(tg).join(', ')||'Tür yok')}${p.v_n?` · izleyici ${fmt(p.v_avg)} (${p.v_n} oy)`:''}</small> <span class="st ${p.status}">${STN[p.status]||''}</span>${p.tags.length?`<span class="chips">${p.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</span>`:''}</div><div class="sc">${fmt(p.score)}</div>
    ${p.note?`<div class="note">${esc(p.note)}</div>`:''}
    <div class="vt">${voted().includes(p.id)?'Oyun kaydedildi, teşekkürler.':`<span>Sen kaç verirdin?</span><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><b>7</b><button data-a="vote">Oy ver</button>`}</div>
    <div class="acts ${admin?'on':''}"><button data-a="rv">Puanı tekrar aç</button><button data-a="ov">Overlay'e gönder</button>${lists.length?`<select data-a="al" aria-label="Listeye ekle"><option value="">Listeye ekle…</option>${lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select>`:''}<button data-a="ed">Düzenle</button><button data-a="del">Sil</button></div></div>`).join('')||'<p style="color:var(--mut)">Eşleşen oyun yok.</p>';
@@ -172,7 +188,7 @@ $('pw').onkeydown=e=>{if(e.key==='Enter')$('lo').click()};
 // Oyun ekle / düzenle
 function openDlg(p){
   $('err').textContent='';$('res').innerHTML='';$('sq').value='';
-  $('dt').textContent=p?'Kaydı düzenle':'Oyun ekle';$('srch').hidden=!!p;
+  $('dt').textContent=p?'Kaydı düzenle':'Oyun ekle';$('srch').hidden=!!p;$('nmw').hidden=!p;$('nm').value=p?p.name:'';
   $('pick').textContent=p?p.name:'';pickName=p?p.name:'';
   $('stt').value=p?p.status:'bitirdi';$('tgs').value=p?p.tags.join(', '):'';$('sc').value=p?p.score:7;$('scv').textContent=$('sc').value;
   $('dt2').value=p?p.played_at:new Date().toISOString().slice(0,10);$('nt').value=p?p.note:'';$('dl').showModal();
@@ -186,7 +202,7 @@ let t;$('sq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{
 $('res').onclick=e=>{const b=e.target.closest('button');if(!b)return;pickId=+b.dataset.id;pickName=b.dataset.n;$('pick').textContent='Seçilen: '+pickName;$('res').innerHTML=''};
 $('sv').onclick=async()=>{
   if(!pickId)return $('err').textContent='Önce bir oyun seç.';
-  const body={appid:pickId,name:pickName,score:+$('sc').value,played_at:$('dt2').value,note:$('nt').value,status:$('stt').value,tags:$('tgs').value.split(',')};
+  const body={appid:pickId,name:editId?$('nm').value:pickName,score:+$('sc').value,played_at:$('dt2').value,note:$('nt').value,status:$('stt').value,tags:$('tgs').value.split(',')};
   try{const r=editId?(await api('/api/plays/'+editId,{method:'PUT',body}),null):await api('/api/plays',{method:'POST',body});
     $('dl').close();await load();if(r)reveal(r)}catch(e){$('err').textContent=e.message}};
 
@@ -200,6 +216,52 @@ function reveal(p){
     clearInterval(rt);n.textContent=fmt(p.score);n.className='land';$('rp').textContent=p.note||''},90);
 }
 $('rv').onclick=()=>{clearInterval(rt);$('rv').classList.remove('on')};
+const AY=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+const TIERS=[['S',9,'#ffc247'],['A',8,'#5de0d6'],['B',7,'#8fb0ff'],['C',6,'#c39bff'],['D',5,'#ff9f6b'],['F',0,'#ff7a90']];
+function renderTier(a){
+  const m={};a.forEach(p=>{(m[p.appid]=m[p.appid]||{p,s:[]}).s.push(p.score)});
+  const g=Object.values(m).map(o=>({...o.p,avg:o.s.reduce((u,v)=>u+v,0)/o.s.length})).sort((x,y)=>y.avg-x.avg);
+  $('tier').innerHTML=TIERS.map(([L,min,c],i)=>{const up=i?TIERS[i-1][1]:11,it=g.filter(x=>x.avg>=min&&x.avg<up);
+    return `<div class="tr"><div class="tl" style="background:${c}">${L}</div><div class="tg">${it.map(x=>`<div class="tc" title="${esc(x.name)}">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy">`:'<div class="ph"></div>'}${esc(x.name)} <b style="color:${c}">${fmt(+x.avg.toFixed(1))}</b></div>`).join('')||'<span style="color:var(--mut)">–</span>'}</div></div>`}).join('');
+}
+function view(t){$('list').hidden=t;$('tier').hidden=!t;$('vlist').classList.toggle('on',!t);$('vtier').classList.toggle('on',t)}
+$('vlist').onclick=()=>view(false);$('vtier').onclick=()=>view(true);
+
+function yearData(y){
+  const a=plays.filter(p=>p.played_at.slice(0,4)===y);if(!a.length)return null;
+  const top1=f=>{const m={};a.forEach(p=>f(p).forEach(k=>m[k]=(m[k]||0)+1));return Object.entries(m).sort((x,z)=>z[1]-x[1])[0]};
+  const top=[...a].sort((x,z)=>z.score-x.score),mo=top1(p=>[p.played_at.slice(0,7)]),ge=top1(p=>p.genres);
+  return{y,n:a.length,avg:+(a.reduce((s,p)=>s+p.score,0)/a.length).toFixed(1),best:top[0],top:top.slice(0,3),
+    genre:ge?tg(ge[0]):'-',month:AY[(mo?+mo[0].slice(5):0)-1]||'-',monthN:mo?mo[1]:0,done:a.filter(p=>p.status==='bitirdi').length};
+}
+function renderYear(){
+  const ys=[...new Set(plays.map(p=>p.played_at.slice(0,4)))].sort().reverse(),cur=$('yy').value;
+  $('yy').innerHTML=ys.map(y=>`<option>${y}</option>`).join('');if(ys.includes(cur))$('yy').value=cur;
+  const d=yearData($('yy').value);$('ydl').hidden=!d;
+  $('yc').innerHTML=d?`<div class="yr"><h3>Oscoliat ${d.y} özeti</h3>
+   <div class="big"><div><b>${d.n}</b>oyun</div><div><b>${fmt(d.avg)}</b>ortalama puan</div><div><b>${d.done}</b>bitirilen</div></div>
+   <div class="bg">${d.best.image?`<img src="${esc(d.best.image)}" alt="">`:''}<div><small>Yılın en yüksek puanlısı</small><br><b style="font:800 1.3rem var(--d)">${esc(d.best.name)}</b> <b style="color:var(--gold)">${fmt(d.best.score)}</b></div></div>
+   <div>En çok oynanan tür: <b>${esc(d.genre)}</b><br>En yoğun ay: <b>${d.month}</b> (${d.monthN} oyun)</div>
+   <ol>${d.top.map(p=>`<li>${esc(p.name)} <b style="color:var(--gold)">${fmt(p.score)}</b></li>`).join('')}</ol></div>`:'<span style="color:var(--mut)">Henüz veri yok.</span>';
+}
+$('yy').onchange=renderYear;
+$('ydl').onclick=async()=>{
+  const d=yearData($('yy').value);if(!d)return;
+  const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
+  const gr=x.createLinearGradient(0,0,1080,1350);gr.addColorStop(0,'#2a2f6b');gr.addColorStop(1,'#151733');x.fillStyle=gr;x.fillRect(0,0,1080,1350);
+  const F='"Bricolage Grotesque",system-ui,sans-serif',T=(s,px,y,col,w=800,xx=80)=>{x.font=`${w} ${px}px ${F}`;x.fillStyle=col;x.fillText(s,xx,y)};
+  const fit=(s,px,w)=>{x.font=`800 ${px}px ${F}`;if(x.measureText(s).width<=w)return s;while(s.length>1&&x.measureText(s+'…').width>w)s=s.slice(0,-1);return s+'…'};
+  T('OSCOLIAT',44,110,'#9ea3d6');T(d.y+' ÖZETİ',120,230,'#eceaff');
+  [['oyun',d.n],['ortalama puan',fmt(d.avg)],['bitirilen',d.done]].forEach(([l,v],i)=>{T(String(v),110,430,'#ffc247',800,80+i*330);T(l,32,480,'#9ea3d6',500,80+i*330)});
+  const im=await new Promise(r=>{if(!d.best.image)return r(null);const i=new Image();i.crossOrigin='anonymous';i.onload=()=>r(i);i.onerror=()=>r(null);i.src=d.best.image});
+  T('YILIN EN YÜKSEK PUANLISI',32,580,'#9ea3d6',600);
+  if(im)x.drawImage(im,80,610,400,187);
+  const y0=im?850:650;
+  T(fit(d.best.name,54,920),54,y0,'#eceaff');T(fmt(d.best.score)+' / 10',90,y0+110,'#ffc247');
+  T('En çok oynanan tür: '+d.genre,36,y0+190,'#eceaff',600);T(`En yoğun ay: ${d.month} (${d.monthN} oyun)`,36,y0+240,'#eceaff',600);
+  d.top.forEach((p,i)=>T(`${i+1}. ${fit(p.name,38,760)}  ${fmt(p.score)}`,38,y0+320+i*55,i?'#9ea3d6':'#ffc247',600));
+  c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`oscoliat-${d.y}-ozet.png`;a.click()},'image/png');
+};
 load();
 </script>
 </body>
