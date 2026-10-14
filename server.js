@@ -45,12 +45,20 @@ app.get('/api/search', need, async (req, res) => {
   const local = db.catalog.prepare(`SELECT appid, name FROM apps WHERE name LIKE ? COLLATE NOCASE
     ORDER BY (name LIKE ? COLLATE NOCASE) DESC, length(name) LIMIT 15`).all(like, q + '%');
   if (local.length) return res.json(local);
-  // Yerel liste boşsa Steam mağaza aramasını canlı kullan (anahtar gerektirmez)
-  try {
-    const r = await fetch(`https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(q)}&l=english&cc=us`);
-    const j = await r.json();
-    res.json((j.items || []).filter(i => i.type === 'app').slice(0, 15).map(i => ({ appid: i.id, name: i.name })));
-  } catch (e) { console.warn('Steam araması başarısız:', e.message); res.json([]); }
+  // Yerel liste boşsa Steam'in herkese açık aramalarını canlı dene (anahtar gerektirmez)
+  const H = { 'User-Agent': 'Mozilla/5.0 (compatible; OscoliatLog/1.0)', Accept: 'application/json' };
+  const tries = [
+    async () => (await (await fetch(`https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(q)}&l=english&cc=us`, { headers: H })).json())
+      .items.filter(i => i.type === 'app').map(i => ({ appid: i.id, name: i.name })),
+    async () => (await (await fetch(`https://steamcommunity.com/actions/SearchApps/${encodeURIComponent(q)}`, { headers: H })).json())
+      .map(i => ({ appid: +i.appid, name: i.name }))
+  ];
+  for (const t of tries) {
+    try { const a = await t(); if (a.length) return res.json(a.slice(0, 15)); }
+    catch (e) { console.warn('Steam arama hatası:', e.message); }
+  }
+  console.warn('Steam araması sonuç vermedi:', q);
+  res.json([]);
 });
 
 async function ensureGame(appid, fallbackName) {
