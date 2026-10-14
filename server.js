@@ -188,6 +188,65 @@ app.delete('/api/lists/:id/items/:appid', need, (req, res) => {
   db.prepare('DELETE FROM list_items WHERE list_id=? AND appid=?').run(req.params.id, req.params.appid); res.json({ ok: true });
 });
 
+// --- Site: YouTube videoları ve Kick yayın durumu ---
+const YT_ID = process.env.YOUTUBE_CHANNEL_ID || 'UCiqYGJyn_xZE4VxdwT_ULNQ';
+const KICK_SLUG = process.env.KICK_SLUG || 'oscoliat';
+const UA = { 'User-Agent': 'Mozilla/5.0 (compatible; OscoliatLog/1.0)' };
+const unxml = t => t.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+let vcache = { at: 0, items: [] };
+app.get('/api/videos', async (_, res) => {
+  if (Date.now() - vcache.at > 15 * 60000) {
+    try {
+      const r = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${YT_ID}`, { headers: UA });
+      if (!r.ok) throw new Error('YouTube ' + r.status);
+      const xml = await r.text();
+      const items = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map(m => {
+        const e = m[1], g = re => (e.match(re) || [])[1] || '';
+        const id = g(/<yt:videoId>([^<]+)</), href = g(/<link rel="alternate" href="([^"]+)"/);
+        return { id, title: unxml(g(/<title>([^<]*)</)), published: g(/<published>([^<]+)</),
+          url: href.startsWith('https://www.youtube.com/') ? href : `https://www.youtube.com/watch?v=${id}` };
+      }).filter(v => /^[\w-]{6,20}$/.test(v.id)).slice(0, 6);
+      vcache = { at: Date.now(), items };
+    } catch (e) { console.warn('YouTube akışı alınamadı:', e.message); vcache.at = Date.now() - 12 * 60000; }
+  }
+  res.json(vcache.items);
+});
+
+let liveCache = { at: 0, live: false, title: '', warned: false }, liveMode = 'auto', kickTok = { v: '', exp: 0 };
+async function kickLive() {
+  const id = process.env.KICK_CLIENT_ID, sec = process.env.KICK_CLIENT_SECRET;
+  if (id && sec) { // Resmî Kick API (uygulama anahtarı gerekir)
+    if (Date.now() > kickTok.exp) {
+      const r = await fetch('https://id.kick.com/oauth/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ grant_type: 'client_credentials', client_id: id, client_secret: sec }) });
+      if (!r.ok) throw new Error('Kick token ' + r.status);
+      const t = await r.json(); kickTok = { v: t.access_token, exp: Date.now() + (t.expires_in - 300) * 1000 };
+    }
+    const r = await fetch(`https://api.kick.com/public/v1/channels?slug=${encodeURIComponent(KICK_SLUG)}`, { headers: { Authorization: 'Bearer ' + kickTok.v } });
+    if (!r.ok) throw new Error('Kick kanal ' + r.status);
+    const c = ((await r.json()).data || [])[0] || {};
+    return { live: !!(c.stream && c.stream.is_live), title: c.stream_title || '' };
+  }
+  // Anahtarsız deneme: Kick engelleyebilir, o zaman elle rozet anahtarı kullanılır
+  const r = await fetch(`https://kick.com/api/v2/channels/${encodeURIComponent(KICK_SLUG)}`, { headers: UA });
+  if (!r.ok) throw new Error('Kick ' + r.status);
+  const j = await r.json();
+  return { live: !!j.livestream, title: (j.livestream && j.livestream.session_title) || '' };
+}
+app.get('/api/live', async (_, res) => {
+  if (Date.now() - liveCache.at > 60000) {
+    liveCache.at = Date.now();
+    try { Object.assign(liveCache, await kickLive()); }
+    catch (e) { if (!liveCache.warned) { console.warn('Kick durumu alınamadı:', e.message); liveCache.warned = true; } liveCache.live = false; }
+  }
+  const live = liveMode === 'on' ? true : liveMode === 'off' ? false : liveCache.live;
+  res.json({ live, title: liveMode === 'on' ? '' : liveCache.title, mode: liveMode });
+});
+app.post('/api/live/override', need, (req, res) => {
+  if (!['auto', 'on', 'off'].includes(req.body.mode)) return res.status(400).json({ error: 'Geçersiz mod' });
+  liveMode = req.body.mode; res.json({ ok: true });
+});
+
 // --- İstatistik ---
 app.get('/api/stats', (_, res) => {
   const all = rows(), n = all.length;
