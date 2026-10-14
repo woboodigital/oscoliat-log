@@ -205,7 +205,7 @@ app.get('/api/videos', async (_, res) => {
         const id = g(/<yt:videoId>([^<]+)</), href = g(/<link rel="alternate" href="([^"]+)"/);
         return { id, title: unxml(g(/<title>([^<]*)</)), published: g(/<published>([^<]+)</),
           url: href.startsWith('https://www.youtube.com/') ? href : `https://www.youtube.com/watch?v=${id}` };
-      }).filter(v => /^[\w-]{6,20}$/.test(v.id)).slice(0, 6);
+      }).filter(v => /^[\w-]{6,20}$/.test(v.id)).slice(0, 12);
       vcache = { at: Date.now(), items };
     } catch (e) { console.warn('YouTube akışı alınamadı:', e.message); vcache.at = Date.now() - 12 * 60000; }
   }
