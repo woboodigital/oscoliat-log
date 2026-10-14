@@ -155,6 +155,8 @@ app.post('/api/plays', need, async (req, res) => {
 app.put('/api/plays/:id', need, (req, res) => {
   try {
     const p = parsePlay(req.body);
+    const nm = String(req.body.name || '').trim().slice(0, 200);
+    if (nm) db.prepare('UPDATE games SET name=? WHERE appid=(SELECT appid FROM plays WHERE id=?)').run(nm, req.params.id);
     db.prepare('UPDATE plays SET score=?, note=?, played_at=?, status=?, tags=? WHERE id=?').run(p.score, p.note, p.day, p.status, p.tags, req.params.id);
     res.json({ ok: true });
   } catch (e) { res.status(400).json({ error: e.message }); }
