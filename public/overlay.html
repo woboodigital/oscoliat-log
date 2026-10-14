@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="tr"><head><meta charset="utf-8"><title>Oscoliat overlay</title>
+<html lang="tr"><head><meta charset="utf-8"><title>OscoMatik overlay</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@600&display=swap" rel="stylesheet">
 <style>
 html,body{margin:0;background:transparent;font-family:'Figtree',system-ui,sans-serif;color:#f3eeff}
@@ -10,9 +10,10 @@ h1{font:800 34px/1.1 'Bricolage Grotesque',sans-serif;margin:0 0 4px;max-width:4
 #n{font:800 120px/1 'Bricolage Grotesque',sans-serif;color:#ad9fd6;min-width:2.6ch}
 #n.land{color:#f4c430;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
 @keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}
+#br{position:absolute;top:8px;right:16px;font:600 12px 'Figtree',sans-serif;letter-spacing:.25em;text-transform:uppercase;color:#ad9fd6}
 #v{font-size:24px;color:#b98cff;min-height:30px}
 </style></head><body>
-<div id="c"><img id="i" alt=""><div><h1 id="t"></h1><div id="n">0</div><div id="v"></div></div></div>
+<div id="c"><img id="i" alt=""><div><h1 id="t"></h1><div id="n">0</div><div id="v"></div></div><div id="br">OscoMatik</div></div>
 <script>
 const $=id=>document.getElementById(id),fmt=n=>Number.isInteger(n)?n:n.toFixed(1),SHOW=20000;
 let last=null,timer,hide;
