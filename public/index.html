@@ -3,14 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Oscoliat Puan Defteri</title>
+<title>Oscoliat · Oyun puan defteri</title>
+<meta name="description" content="Oscoliat yayınlarında oynanan oyunların puanları, notları ve son videoları.">
+<link rel="icon" href="/logo.webp" type="image/webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#151733;--surf:#20244f;--line:#343a7a;--tx:#eceaff;--mut:#9ea3d6;--gold:#ffc247;--cy:#5de0d6;--bad:#ff7a90;
+:root{--bg:#12072a;--surf:#22104a;--line:#412a7a;--tx:#f3eeff;--mut:#ad9fd6;--gold:#f4c430;--cy:#b98cff;--bad:#ff7a90;
 --d:'Bricolage Grotesque',system-ui,sans-serif;--b:'Figtree',system-ui,sans-serif}
 *{box-sizing:border-box}html{background:var(--bg)}
-body{margin:0;color:var(--tx);font:16px/1.5 var(--b);background:var(--bg)}
+body{margin:0;color:var(--tx);font:16px/1.5 var(--b);background:radial-gradient(1100px 520px at 50% -8%,#3d1a80 0%,transparent 62%),var(--bg);background-attachment:fixed}
 main{max-width:920px;margin:0 auto;padding:24px 16px 80px}
 h1,h2{font-family:var(--d);margin:0}h1{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;letter-spacing:-.02em}
 h2{font-size:1.3rem;margin:40px 0 12px}
@@ -62,17 +64,44 @@ a.link{color:var(--mut);font-size:.9rem;padding:4px;text-decoration:none}
 .tl{flex:0 0 56px;display:grid;place-items:center;border-radius:8px;font:800 1.8rem var(--d);color:#1a1300;min-height:56px}
 .tg{display:flex;flex-wrap:wrap;gap:8px;flex:1;align-items:flex-start;align-content:center}
 .tc{width:112px;font-size:.75rem;color:var(--mut);line-height:1.25}.tc img{width:100%;border-radius:6px;display:block;margin-bottom:2px}.tc .ph{width:100%;height:52px}
-.yr{background:linear-gradient(135deg,#2a2f6b,#1b1e44);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:560px}
+.yr{background:linear-gradient(135deg,#4a2394,#22104a);border:1px solid var(--line);border-radius:16px;padding:24px;max-width:560px}
 .yr h3{margin:0;font:800 1.6rem var(--d)}.yr .big{display:flex;gap:28px;margin:16px 0;color:var(--mut);font-size:.9rem}.yr .big b{font:800 2.4rem var(--d);color:var(--gold);display:block;line-height:1}
 .yr .bg{display:flex;gap:14px;align-items:center;margin:12px 0}.yr .bg img{width:150px;border-radius:8px}.yr ol{margin:10px 0 0;padding-left:20px}
+[hidden]{display:none!important}
+nav.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}nav.top .r{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hero{display:flex;gap:28px;align-items:center;margin:26px 0 4px;flex-wrap:wrap}
+.hero img.lg{width:132px;height:132px;border-radius:50%;box-shadow:0 0 0 3px var(--gold),0 12px 40px #7b3fe466}
+.hero p{max-width:46ch;color:var(--mut);margin:6px 0 14px}
+.soc{display:flex;gap:8px;flex-wrap:wrap}.soc a{border:1px solid var(--line);background:var(--surf);padding:8px 16px;border-radius:99px;color:var(--tx);text-decoration:none;font-weight:600;font-size:.92rem}
+.soc a:hover{border-color:var(--gold)}.soc a.k{background:var(--gold);color:#241a00;border-color:var(--gold)}
+.live{display:inline-flex;align-items:center;gap:8px;background:#ff4d6d26;border:1px solid #ff4d6d;color:#ffe0e5;padding:4px 14px;border-radius:99px;font-weight:600;font-size:.88rem;text-decoration:none;margin-bottom:10px;max-width:100%}
+.live i{flex:none;width:9px;height:9px;border-radius:50%;background:#ff4d6d;animation:pl 1.4s infinite}.live span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@keyframes pl{50%{opacity:.3}}@media(prefers-reduced-motion:reduce){.live i{animation:none}}
+.vg{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.vc{color:var(--tx);text-decoration:none;font-size:.92rem;line-height:1.3;display:flex;flex-direction:column;gap:4px}
+.vc img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;border:1px solid var(--line)}.vc:hover img{border-color:var(--gold)}
+.vc span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.vc small{color:var(--mut)}
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--mut);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:.9rem}
+footer a{color:var(--mut);margin-left:14px}
 </style>
 </head>
 <body>
 <main>
-<header>
-  <div><h1>Oscoliat Puan Defteri</h1><p>Yayında oynanan her oyun, bittiğinde puanlanır.</p></div>
-  <div><a class="link" id="csv" href="/api/export.csv" hidden>CSV indir</a><button class="link" id="adm">Yayıncı girişi</button><button class="pri" id="add" hidden>Oyun ekle</button></div>
-</header>
+<nav class="top">
+  <div class="r"><a class="link" href="#puan">Puan defteri</a><a class="link" href="#videolar">Videolar</a></div>
+  <div class="r"><button class="link" id="lvb" hidden>Rozet: otomatik</button><a class="link" id="csv" href="/api/export.csv" hidden>CSV indir</a><button class="link" id="adm">Yayıncı girişi</button><button class="pri" id="add" hidden>Oyun ekle</button></div>
+</nav>
+<section class="hero">
+  <img class="lg" src="/logo.webp" width="132" height="132" alt="Oscoliat logosu">
+  <div>
+    <a class="live" id="lv" href="https://kick.com/oscoliat" target="_blank" rel="noopener" hidden><i></i><span id="lvt">Şimdi yayında</span></a>
+    <h1>Oscoliat</h1>
+    <p>Hikayeli ve eğlenceli oyunlar, yayında. Biten her oyun burada puanlanır.</p>
+    <div class="soc"><a class="k" href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick'te izle</a><a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></div>
+  </div>
+</section>
+<h2 id="puan" style="margin-top:36px">Puan defteri</h2>
+<p style="color:var(--mut);margin:0">Yayında oynanan her oyun, bittiğinde puanlanır.</p>
 <div class="sum" id="sum"></div>
 
 <h2>Oyunlar</h2>
@@ -83,6 +112,8 @@ a.link{color:var(--mut);font-size:.9rem;padding:4px;text-decoration:none}
 <select id="so" aria-label="Sırala"><option value="date">En yeni</option><option value="hi">Puan: yüksek</option><option value="lo">Puan: düşük</option></select></div>
 <div class="vw"><button class="on" id="vlist">Liste</button><button id="vtier">Tier listesi</button></div>
 <div id="list"></div><div id="tier" hidden></div>
+
+<section id="vsec" hidden><h2 id="videolar" style="margin-top:44px">Son videolar</h2><div class="vg" id="vg"></div></section>
 
 <div class="lh"><h2 style="margin:40px 0 12px">Listeler</h2><button id="nl" hidden>Yeni liste</button></div>
 <div id="lists"></div>
@@ -98,6 +129,7 @@ a.link{color:var(--mut);font-size:.9rem;padding:4px;text-decoration:none}
 <h2>Yıllık özet</h2>
 <div class="bar"><select id="yy" aria-label="Yıl" style="max-width:140px"></select><button id="ydl" hidden>Görseli indir</button></div>
 <div id="yc"></div>
+<footer><span>© Oscoliat · Oyun puan defteri</span><span><a href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick</a><a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></span></footer>
 </main>
 
 <dialog id="dl"><form method="dialog" id="fm" onsubmit="return false">
@@ -131,7 +163,7 @@ let plays=[],lists=[],admin=false,pickId=null,pickName='',editId=null;
 
 async function load(){
   const [p,s,me,ls]=await Promise.all([api('/api/plays'),api('/api/stats'),api('/api/me'),api('/api/lists')]);
-  plays=p;lists=ls;$('nl').hidden=!me.admin;admin=me.admin;$('add').hidden=!admin;$('csv').hidden=!admin;$('adm').textContent=admin?'Çıkış':'Yayıncı girişi';
+  plays=p;lists=ls;$('nl').hidden=!me.admin;admin=me.admin;$('add').hidden=!admin;$('csv').hidden=!admin;$('lvb').hidden=!admin;$('adm').textContent=admin?'Çıkış':'Yayıncı girişi';
   $('sum').innerHTML=s.total?`<div><b>${s.total}</b><span>oyun</span></div><div><b>${fmt(s.average)}</b><span>ortalama puan</span></div>
    <div><b>${esc(tg(s.genres[0]?.name||'-'))}</b><span>en çok oynanan tür</span></div>`:'<span>Henüz oyun yok.</span>';
   const li=a=>a.length?a.map(x=>`<div class="li"><span>${esc(x.name)}</span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
@@ -217,7 +249,7 @@ function reveal(p){
 }
 $('rv').onclick=()=>{clearInterval(rt);$('rv').classList.remove('on')};
 const AY=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-const TIERS=[['S',9,'#ffc247'],['A',8,'#5de0d6'],['B',7,'#8fb0ff'],['C',6,'#c39bff'],['D',5,'#ff9f6b'],['F',0,'#ff7a90']];
+const TIERS=[['S',9,'#f4c430'],['A',8,'#c9a2ff'],['B',7,'#8fb0ff'],['C',6,'#5de0d6'],['D',5,'#ff9f6b'],['F',0,'#ff7a90']];
 function renderTier(a){
   const m={};a.forEach(p=>{(m[p.appid]=m[p.appid]||{p,s:[]}).s.push(p.score)});
   const g=Object.values(m).map(o=>({...o.p,avg:o.s.reduce((u,v)=>u+v,0)/o.s.length})).sort((x,y)=>y.avg-x.avg);
@@ -248,20 +280,26 @@ $('yy').onchange=renderYear;
 $('ydl').onclick=async()=>{
   const d=yearData($('yy').value);if(!d)return;
   const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
-  const gr=x.createLinearGradient(0,0,1080,1350);gr.addColorStop(0,'#2a2f6b');gr.addColorStop(1,'#151733');x.fillStyle=gr;x.fillRect(0,0,1080,1350);
+  const gr=x.createLinearGradient(0,0,1080,1350);gr.addColorStop(0,'#4a2394');gr.addColorStop(1,'#12072a');x.fillStyle=gr;x.fillRect(0,0,1080,1350);
   const F='"Bricolage Grotesque",system-ui,sans-serif',T=(s,px,y,col,w=800,xx=80)=>{x.font=`${w} ${px}px ${F}`;x.fillStyle=col;x.fillText(s,xx,y)};
   const fit=(s,px,w)=>{x.font=`800 ${px}px ${F}`;if(x.measureText(s).width<=w)return s;while(s.length>1&&x.measureText(s+'…').width>w)s=s.slice(0,-1);return s+'…'};
-  T('OSCOLIAT',44,110,'#9ea3d6');T(d.y+' ÖZETİ',120,230,'#eceaff');
-  [['oyun',d.n],['ortalama puan',fmt(d.avg)],['bitirilen',d.done]].forEach(([l,v],i)=>{T(String(v),110,430,'#ffc247',800,80+i*330);T(l,32,480,'#9ea3d6',500,80+i*330)});
+  T('OSCOLIAT',44,110,'#ad9fd6');T(d.y+' ÖZETİ',120,230,'#f3eeff');
+  [['oyun',d.n],['ortalama puan',fmt(d.avg)],['bitirilen',d.done]].forEach(([l,v],i)=>{T(String(v),110,430,'#f4c430',800,80+i*330);T(l,32,480,'#ad9fd6',500,80+i*330)});
   const im=await new Promise(r=>{if(!d.best.image)return r(null);const i=new Image();i.crossOrigin='anonymous';i.onload=()=>r(i);i.onerror=()=>r(null);i.src=d.best.image});
-  T('YILIN EN YÜKSEK PUANLISI',32,580,'#9ea3d6',600);
+  T('YILIN EN YÜKSEK PUANLISI',32,580,'#ad9fd6',600);
   if(im)x.drawImage(im,80,610,400,187);
   const y0=im?850:650;
-  T(fit(d.best.name,54,920),54,y0,'#eceaff');T(fmt(d.best.score)+' / 10',90,y0+110,'#ffc247');
-  T('En çok oynanan tür: '+d.genre,36,y0+190,'#eceaff',600);T(`En yoğun ay: ${d.month} (${d.monthN} oyun)`,36,y0+240,'#eceaff',600);
-  d.top.forEach((p,i)=>T(`${i+1}. ${fit(p.name,38,760)}  ${fmt(p.score)}`,38,y0+320+i*55,i?'#9ea3d6':'#ffc247',600));
+  T(fit(d.best.name,54,920),54,y0,'#f3eeff');T(fmt(d.best.score)+' / 10',90,y0+110,'#f4c430');
+  T('En çok oynanan tür: '+d.genre,36,y0+190,'#f3eeff',600);T(`En yoğun ay: ${d.month} (${d.monthN} oyun)`,36,y0+240,'#f3eeff',600);
+  d.top.forEach((p,i)=>T(`${i+1}. ${fit(p.name,38,760)}  ${fmt(p.score)}`,38,y0+320+i*55,i?'#ad9fd6':'#f4c430',600));
   c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`oscoliat-${d.y}-ozet.png`;a.click()},'image/png');
 };
+async function loadVideos(){try{const v=await api('/api/videos');$('vsec').hidden=!v.length;
+  $('vg').innerHTML=v.map(x=>`<a class="vc" href="${esc(x.url)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${esc(x.id)}/mqdefault.jpg" alt="" loading="lazy"><span>${esc(x.title)}</span><small>${new Date(x.published).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</small></a>`).join('')}catch{$('vsec').hidden=true}}
+let lvMode='auto';
+async function loadLive(){try{const l=await api('/api/live');lvMode=l.mode;$('lv').hidden=!l.live;$('lvt').textContent=l.title?'Yayında: '+l.title:'Şimdi yayında';$('lvb').textContent='Rozet: '+({auto:'otomatik',on:'açık',off:'kapalı'}[l.mode])}catch{}}
+$('lvb').onclick=async()=>{await api('/api/live/override',{method:'POST',body:{mode:{auto:'on',on:'off',off:'auto'}[lvMode]}});loadLive()};
+loadVideos();loadLive();setInterval(loadLive,60000);
 load();
 </script>
 </body>

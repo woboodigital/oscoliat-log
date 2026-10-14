@@ -2,15 +2,15 @@
 <html lang="tr"><head><meta charset="utf-8"><title>Oscoliat overlay</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@600&display=swap" rel="stylesheet">
 <style>
-html,body{margin:0;background:transparent;font-family:'Figtree',system-ui,sans-serif;color:#eceaff}
-#c{position:fixed;left:32px;bottom:32px;display:flex;gap:22px;align-items:center;background:#151733f2;border:3px solid #ffc247;border-radius:16px;padding:18px 28px;opacity:0;transform:translateY(24px);transition:opacity .4s,transform .4s}
+html,body{margin:0;background:transparent;font-family:'Figtree',system-ui,sans-serif;color:#f3eeff}
+#c{position:fixed;left:32px;bottom:32px;display:flex;gap:22px;align-items:center;background:#12072af2;border:3px solid #f4c430;border-radius:16px;padding:18px 28px;opacity:0;transform:translateY(24px);transition:opacity .4s,transform .4s}
 #c.on{opacity:1;transform:none}
 img{width:240px;border-radius:8px;display:block}
 h1{font:800 34px/1.1 'Bricolage Grotesque',sans-serif;margin:0 0 4px;max-width:420px}
-#n{font:800 120px/1 'Bricolage Grotesque',sans-serif;color:#9ea3d6;min-width:2.6ch}
-#n.land{color:#ffc247;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
+#n{font:800 120px/1 'Bricolage Grotesque',sans-serif;color:#ad9fd6;min-width:2.6ch}
+#n.land{color:#f4c430;animation:pop .5s cubic-bezier(.2,1.6,.4,1)}
 @keyframes pop{from{transform:scale(.6)}to{transform:scale(1)}}
-#v{font-size:24px;color:#5de0d6;min-height:30px}
+#v{font-size:24px;color:#b98cff;min-height:30px}
 </style></head><body>
 <div id="c"><img id="i" alt=""><div><h1 id="t"></h1><div id="n">0</div><div id="v"></div></div></div>
 <script>
