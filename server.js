@@ -10,8 +10,23 @@ if (!ADMIN_PASSWORD) { console.error('ADMIN_PASSWORD tanımlı değil (.env)'); 
 const app = express();
 app.set('trust proxy', process.env.TRUST_PROXY ? 1 : false);
 const SECURE = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+app.use((req, res, next) => {
+  res.set({ 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'strict-origin-when-cross-origin', 'X-Frame-Options': 'SAMEORIGIN' });
+  next();
+});
 app.use(express.json({ limit: '50kb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+// Ana sayfa: paylaşım önizlemesi (Open Graph) için gerçek adresi içine yazar
+const INDEX = path.join(__dirname, 'public', 'index.html');
+app.get(['/', '/index.html'], (req, res) => {
+  fs.readFile(INDEX, 'utf8', (e, t) => {
+    if (e) return res.status(500).send('Sayfa okunamadı');
+    const host = String(req.get('host') || '').replace(/[^a-zA-Z0-9.:-]/g, '');
+    res.set('Cache-Control', 'no-cache').type('html').send(t.replace(/__ORIGIN__/g, `${req.protocol}://${host}`));
+  });
+});
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (r, f) => { if (f.endsWith('.webp')) r.setHeader('Cache-Control', 'public, max-age=604800'); }
+}));
 
 // --- Basit imzalı çerez oturumu ---
 const sign = v => crypto.createHmac('sha256', SESSION_SECRET).update(v).digest('hex');
@@ -129,7 +144,7 @@ app.get('/api/export.csv', need, (_, res) => {
   const head = ['tarih', 'oyun', 'puan', 'durum', 'etiketler', 'turler', 'gelistirici', 'cikis', 'not', 'izleyici_ort', 'izleyici_oy'];
   const lines = [head.join(',')].concat(rows().map(p => [p.played_at, p.name, p.score, p.status, p.tags.join('; '),
     p.genres.join('; '), p.developer, p.release, p.note, p.v_avg, p.v_n].map(q).join(',')));
-  res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="oscoliat-oyunlar.csv"' });
+  res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="oscomatik-oyunlar.csv"' });
   res.send('\ufeff' + lines.join('\r\n'));
 });
 

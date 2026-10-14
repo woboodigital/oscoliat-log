@@ -1,5 +1,5 @@
 {
-  "name": "oscoliat-log",
+  "name": "oscomatik",
   "version": "0.1.0",
   "type": "commonjs",
   "scripts": { "start": "node server.js", "sync": "node scripts/sync-steam.js" },
