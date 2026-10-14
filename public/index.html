@@ -167,7 +167,7 @@ $('list').onchange=async e=>{if(e.target.dataset.a!=='al'||!e.target.value)retur
 $('adm').onclick=async()=>{if(admin){await api('/api/logout',{method:'POST'});load()}else{$('lerr').textContent='';$('lg').showModal();$('pw').focus()}};
 $('lc').onclick=()=>$('lg').close();
 $('lo').onclick=async()=>{try{await api('/api/login',{method:'POST',body:{password:$('pw').value}});$('pw').value='';$('lg').close();load()}catch(e){$('lerr').textContent=e.message}};
-$('pw').onkeydown=e=>e.key==='Enter'&&$('lo').click();
+$('pw').onkeydown=e=>{if(e.key==='Enter')$('lo').click()};
 
 // Oyun ekle / düzenle
 function openDlg(p){
