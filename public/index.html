@@ -33,14 +33,14 @@ input,select,textarea{background:var(--bg);border:1px solid var(--line);border-r
 .sum{display:flex;flex-wrap:wrap;gap:8px 32px;margin:28px 0 0}
 .sum b{font:800 2rem var(--d);color:var(--gold);display:block;line-height:1.1}.sum span{color:var(--mut);font-size:.9rem}
 .bar{display:flex;gap:8px;margin:12px 0}.bar input{flex:1}.bar select{width:auto}
-.row{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
+.row{display:grid;grid-template-columns:96px minmax(0,1fr) auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--line);cursor:pointer}
 .row img,.ph{width:96px;height:45px;object-fit:cover;border-radius:6px;background:var(--surf)}
 .row h3{margin:0;font-size:1.05rem}.row small{color:var(--mut)}
 .sc{font:800 1.8rem var(--d);color:var(--gold);min-width:3.4ch;text-align:right}
 .note{grid-column:2/4;color:var(--mut);display:none;white-space:pre-wrap}.row.open .note{display:block}
 .acts{grid-column:2/4;display:none;gap:8px}.row.open .acts.on{display:flex}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:24px}
-@media(max-width:640px){.two{grid-template-columns:1fr}.row{grid-template-columns:72px 1fr auto}.row img,.ph{width:72px;height:34px}}
+@media(max-width:640px){.two{grid-template-columns:1fr}.row{grid-template-columns:72px minmax(0,1fr) auto}.row img,.ph{width:72px;height:34px}}
 .li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
 .gb{height:8px;background:var(--cy);border-radius:4px;margin-top:3px}
 dialog{background:var(--surf);color:var(--tx);border:1px solid var(--line);border-radius:12px;max-width:520px;width:calc(100% - 24px);padding:20px}
@@ -133,6 +133,25 @@ svg.fl:nth-child(3n){color:var(--gold);opacity:.06}
 .dist{display:flex;gap:6px;align-items:flex-end;height:130px}
 .dist div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%;font-size:.8rem;color:var(--mut)}
 .dist i{display:block;width:100%;background:linear-gradient(var(--gold),#b8860b);border-radius:4px 4px 0 0;min-height:2px}.dist b{color:var(--tx);font-weight:600}
+/* ---- Mobil taşma düzeltmeleri ---- */
+html,body{overflow-x:hidden}
+.bar{flex-wrap:wrap}.bar input{flex:1 1 220px;min-width:0}.bar select{flex:1 1 130px;min-width:0}
+.hero>div{min-width:0;flex:1 1 260px}.live{min-width:0}.live span{min-width:0}
+/* ---- Puan açılış ekranı ---- */
+#rv{overflow:hidden}
+#rv::before{content:'';position:absolute;inset:-50%;background:repeating-conic-gradient(from 0deg,#f4c43016 0 8deg,transparent 8deg 24deg);animation:spin 50s linear infinite;pointer-events:none;-webkit-mask-image:radial-gradient(circle,#000 0,transparent 55%);mask-image:radial-gradient(circle,#000 0,transparent 55%)}
+@keyframes spin{to{transform:rotate(360deg)}}
+#rv>img,#rv>h2,#rv>#rn,#rv>p{position:relative}
+#cf{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#rf{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}#rf.go{animation:fl .5s ease-out}@keyframes fl{from{opacity:.35}to{opacity:0}}
+#rg{position:absolute;left:50%;top:62%;width:20px;height:20px;border:3px solid var(--gold);border-radius:50%;opacity:0;pointer-events:none;transform:translate(-50%,-50%)}
+#rg.go{animation:rg .9s ease-out}@keyframes rg{from{opacity:.9;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-50%) scale(46)}}
+#rx{position:absolute;top:max(16px,env(safe-area-inset-top));right:16px;width:44px;height:44px;padding:0;border-radius:50%;font-size:1.2rem;line-height:1;z-index:2}
+#rh{position:absolute;bottom:max(20px,env(safe-area-inset-bottom));color:var(--mut);font-size:.85rem}
+#rv.on #ri{animation:cin .8s cubic-bezier(.2,1.4,.4,1)}@keyframes cin{from{opacity:0;transform:translateY(-40px) rotate(-6deg) scale(.8)}to{opacity:1;transform:none}}
+#rn.roll{animation:shk .1s infinite}@keyframes shk{0%{transform:translate(-2px,1px) rotate(-1deg)}50%{transform:translate(2px,-1px) rotate(1deg)}100%{transform:translate(-1px,2px)}}
+#rn.land{text-shadow:0 0 50px #f4c43099}
+@media(prefers-reduced-motion:reduce){#rv::before,#rn.roll,#rv.on #ri,#rg.go,#rf.go{animation:none}}
 </style>
 </head>
 <body>
@@ -247,7 +266,7 @@ svg.fl:nth-child(3n){color:var(--gold);opacity:.06}
   <label for="pw">Şifre</label><input id="pw" type="password" autocomplete="current-password">
   <div id="lerr" style="color:var(--bad);min-height:1.4em" role="alert"></div>
   <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="lc">Vazgeç</button><button class="pri" id="lo">Giriş yap</button></div></form></dialog>
-<div id="rv"><small id="rb">OscoMatik</small><img id="ri" alt=""><h2 id="rt"></h2><div id="rn">0</div><p id="rp"></p></div>
+<div id="rv"><canvas id="cf"></canvas><i id="rf"></i><i id="rg"></i><button id="rx" aria-label="Kapat">✕</button><small id="rb">OscoMatik</small><img id="ri" alt=""><h2 id="rt"></h2><div id="rn">0</div><p id="rp"></p><small id="rh">Kapatmak için dokun · Esc</small></div>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -344,14 +363,32 @@ $('sv').onclick=async()=>{
 
 // Puan açıklama anı
 let rt;
+const cf={ps:[],raf:0,
+  burst(n,x,y,ang,spread,pow){const C=['#f4c430','#ffe27a','#b98cff','#8a4dff','#53fc18','#ffffff'];
+    for(let i=0;i<n;i++){const a=ang+(Math.random()-.5)*spread,v=pow*(.4+Math.random()*.8);
+      cf.ps.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,r:Math.random()*6.28,vr:(Math.random()-.5)*.35,w:7+Math.random()*7,h:4+Math.random()*5,c:C[i%C.length],t:150+Math.random()*120})}
+    if(!cf.raf)cf.run()},
+  run(){const c=$('cf'),x=c.getContext('2d'),d=Math.min(devicePixelRatio||1,2);c.width=innerWidth*d;c.height=innerHeight*d;x.setTransform(d,0,0,d,0,0);
+    const tick=()=>{x.clearRect(0,0,innerWidth,innerHeight);cf.ps=cf.ps.filter(p=>p.t>0&&p.y<innerHeight+30);
+      cf.ps.forEach(p=>{p.vy+=.17;p.vx*=.99;p.vy*=.99;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;p.t--;x.save();x.translate(p.x,p.y);x.rotate(p.r);
+        x.globalAlpha=Math.min(1,p.t/40);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h*Math.abs(Math.cos(p.r*1.7))+1);x.restore()});
+      cf.raf=cf.ps.length?requestAnimationFrame(tick):0;if(!cf.raf)x.clearRect(0,0,innerWidth,innerHeight)};
+    cf.raf=requestAnimationFrame(tick)},
+  stop(){cf.ps=[]}};
+function celebrate(s){const W=innerWidth,H=innerHeight,n=Math.round(30+s*16),pw=9+s*.6;
+  cf.burst(n,0,H,-Math.PI/3,.8,pw);cf.burst(n,W,H,-2*Math.PI/3,.8,pw);cf.burst(Math.round(n*.6),W/2,H*.5,-Math.PI/2,Math.PI*2,8);
+  if(s>=9)setTimeout(()=>{cf.burst(70,W*.25,H*.35,-Math.PI/2,Math.PI*2,9);cf.burst(70,W*.75,H*.35,-Math.PI/2,Math.PI*2,9)},500)}
 function reveal(p){
-  clearInterval(rt);$('ri').src=p.image||'';$('ri').hidden=!p.image;$('rt').textContent=p.name;$('rp').textContent='';
-  const n=$('rn');n.className='';$('rv').classList.add('on');
+  clearInterval(rt);cf.stop();$('ri').src=p.image||'';$('ri').hidden=!p.image;$('rt').textContent=p.name;$('rp').textContent='';
+  const n=$('rn');n.className='roll';$('rv').classList.add('on');
   const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches,end=Date.now()+(reduce?0:2600);
   rt=setInterval(()=>{ if(Date.now()<end){n.textContent=fmt(Math.floor(Math.random()*21)/2);return}
-    clearInterval(rt);n.textContent=fmt(p.score);n.className='land';$('rp').textContent=p.note||''},90);
+    clearInterval(rt);n.textContent=fmt(p.score);n.className='land';$('rp').textContent=p.note||'';
+    if(!reduce){for(const id of ['rg','rf']){const e=$(id);e.classList.remove('go');void e.offsetWidth;e.classList.add('go')}celebrate(p.score)}},90);
 }
-$('rv').onclick=()=>{clearInterval(rt);$('rv').classList.remove('on')};
+const closeRv=()=>{clearInterval(rt);cf.stop();$('rv').classList.remove('on')};
+$('rv').onclick=closeRv;
+addEventListener('keydown',e=>{if(e.key==='Escape'&&$('rv').classList.contains('on'))closeRv()});
 const AY=['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
 const TIERS=[['S',9,'#f4c430'],['A',8,'#c9a2ff'],['B',7,'#8fb0ff'],['C',6,'#5de0d6'],['D',5,'#ff9f6b'],['F',0,'#ff7a90']];
 function renderTier(a){
