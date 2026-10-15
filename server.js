@@ -21,14 +21,19 @@ app.get('/healthz', (_, res) => res.type('text').send('ok'));
 
 // --- Sayfalar: __ANAHTAR__ yer tutucularını doldurur (paylaşım önizlemesi, hukuki bilgiler) ---
 const eh = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// Sayfa dosyası önce public/ içinde, bulunamazsa ana klasörde aranır (yanlış klasöre yüklenmiş olsa da çalışsın)
+const findFile = name => [path.join(__dirname, 'public', name), path.join(__dirname, name)].find(p => fs.existsSync(p));
 function sendPage(req, res, file, vars = {}, status = 200) {
-  fs.readFile(path.join(__dirname, 'public', file), 'utf8', (e, t) => {
-    if (e) return res.status(500).send('Sayfa okunamadı');
+  const f = findFile(file);
+  if (!f) { console.error('Sayfa dosyası bulunamadı:', file); return res.status(500).type('text').send(`Sayfa dosyası bulunamadı: ${file}. Dosya GitHub deposunda "public" klasörüne yüklenmeli.`); }
+  fs.readFile(f, 'utf8', (e, t) => {
+    if (e) return res.status(500).type('text').send('Sayfa okunamadı');
     const host = String(req.get('host') || '').replace(/[^a-zA-Z0-9.:-]/g, '');
     const origin = `${req.protocol}://${host}`, all = { ORIGIN: origin, IMG: origin + '/logo.webp', ...vars };
     res.status(status).set('Cache-Control', 'no-cache').type('html').send(t.replace(/__([A-Z_]+)__/g, (m, k) => (k in all ? eh(all[k]) : m)));
   });
 }
+app.get('/site.css', (req, res) => { const f = findFile('site.css'); return f ? res.type('css').sendFile(f) : res.status(404).end(); });
 const LEGAL = () => ({
   LEGAL_NAME: process.env.LEGAL_NAME || '[Ad Soyad / Ünvan]',
   LEGAL_EMAIL: process.env.LEGAL_EMAIL || '[iletişim e-posta adresi]',
