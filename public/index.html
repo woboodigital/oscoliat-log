@@ -189,6 +189,14 @@ a.btnlink{display:inline-block;padding:8px 14px;border:1px solid var(--line);bor
 .adl .li{align-items:center}.adf{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.adf input{flex:1 1 150px}
 footer{display:block}.fr{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .fl2{margin-top:10px}.fl2 a{margin:0 16px 0 0;color:var(--mut)}.disc{margin:12px 0 0;font-size:.82rem;opacity:.85}
+/* ---- Oyun sayfasına hızlı gidiş ---- */
+.cvl{display:block;line-height:0}
+.row h3 .rt{text-decoration:none}.row h3 .rt:hover,.gl:hover,.tc:hover{color:var(--gold);text-decoration:underline}
+.gl{color:inherit;text-decoration:none}.fl a.gl{display:block}.fl a.gl img{margin-bottom:2px}
+a.tc{display:block;text-decoration:none}
+.scw{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.tgl{width:34px;height:34px;padding:0;border-radius:50%;line-height:1;font-size:1.1rem;transition:transform .2s}.row.open .tgl{transform:rotate(180deg)}
+.lnk a.btnlink{color:var(--tx);padding:8px 14px}.lnk a.btnlink:hover{color:var(--tx)}
 </style>
 </head>
 <body>
@@ -336,11 +344,11 @@ async function load(){
   plays=p;lists=ls;$('nl').hidden=!me.admin;admin=me.admin;$('add').hidden=!admin;role=me.role;$('mgb').hidden=role!=='owner';$('lvb').hidden=!admin;$('adm').textContent=admin?'Çıkış':'Yayıncı girişi';
   $('sum').innerHTML=s.total?`<div><b>${s.total}</b><span>oyun puanlandı</span></div><div><b>${fmt(s.average)}</b><span>ortalama puan</span></div>
    <div><b>${esc(tg(s.genres[0]?.name||'-'))}</b><span>en çok oynanan tür</span></div><div><b>${esc(s.best[0].name)}</b><span>en yüksek puan: ${fmt(s.best[0].score)}</span></div>`:'<span style="color:var(--mut)">Henüz oyun yok.</span>';
-  const li=a=>a.length?a.map(x=>`<div class="li"><span>${esc(x.name)}</span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
+  const li=a=>a.length?a.map(x=>`<div class="li"><span><a class="gl" href="/oyun/${x.appid}">${esc(x.name)}</a></span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
   $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);$('sw').hidden=s.total<6;ALLTAGS=s.tags.map(t=>t.name);fillYears();
   const dmx=Math.max(1,...s.distribution);$('dist').innerHTML=s.distribution.map((c,i)=>`<div><b>${c||''}</b><i style="height:${Math.round(c/dmx*80)}px"></i><span>${i}</span></div>`).join('');
   const vd=p.filter(x=>x.v_n>=3).map(x=>({...x,d:Math.abs(x.score-x.v_avg)})).sort((x,y)=>y.d-x.d).slice(0,3);
-  $('vd').hidden=!vd.length;$('vdl').innerHTML=vd.map(x=>`<div class="li"><span>${esc(x.name)}</span><span>Oscoliat <b>${fmt(x.score)}</b> · izleyici <b>${fmt(x.v_avg)}</b> (${x.v_n} oy)</span></div>`).join('');
+  $('vd').hidden=!vd.length;$('vdl').innerHTML=vd.map(x=>`<div class="li"><span><a class="gl" href="/oyun/${x.appid}">${esc(x.name)}</a></span><span>Oscoliat <b>${fmt(x.score)}</b> · izleyici <b>${fmt(x.v_avg)}</b> (${x.v_n} oy)</span></div>`).join('');
   const mx=Math.max(1,...s.genres.map(g=>g.count));
   $('gen').innerHTML=s.genres.slice(0,8).map(g=>`<div style="margin:8px 0"><div class="li" style="border:0;padding:0"><span>${esc(tg(g.name))} (${g.count})</span><span>ort. ${fmt(g.avg)}</span></div><div class="gb" style="width:${g.count/mx*100}%"></div></div>`).join('')||'<span style="color:var(--mut)">Veri yok</span>';
   $('mon').innerHTML=s.months.slice(-12).map(m=>`<div class="li"><span>${m.month}</span><b>${m.count}</b></div>`).join('')||'<span style="color:var(--mut)">Veri yok</span>';
@@ -354,7 +362,7 @@ $('list').addEventListener('input',e=>{if(e.target.matches('.vt input')){e.targe
 const STN={bitirdi:'Bitirdi',yarida:'Yarıda bıraktı',tekrar:'Tekrar oynanacak'};
 function renderLists(){
   $('lists').innerHTML=lists.map(l=>`<div><div class="lh"><h3>${esc(l.name)} (${l.items.length})</h3>${role==='owner'?`<button class="link" data-dl="${l.id}">Listeyi sil</button>`:''}</div>
-   <div class="fl">${l.items.map(i=>`<div>${i.image?`<img src="${esc(i.image)}" alt="" loading="lazy">`:''}${esc(i.name)} <b style="color:var(--gold)">${i.score==null?'':fmt(i.score)}</b>${admin?` <button class="link" data-ri="${l.id}:${i.appid}" aria-label="Listeden çıkar">×</button>`:''}</div>`).join('')||'<span style="color:var(--mut)">Boş liste</span>'}</div></div>`).join('')||'<span style="color:var(--mut)">Henüz liste yok.</span>';
+   <div class="fl">${l.items.map(i=>`<div><a class="gl" href="/oyun/${i.appid}">${i.image?`<img src="${esc(i.image)}" alt="" loading="lazy">`:''}${esc(i.name)}</a> <b style="color:var(--gold)">${i.score==null?'':fmt(i.score)}</b>${admin?` <button class="link" data-ri="${l.id}:${i.appid}" aria-label="Listeden çıkar">×</button>`:''}</div>`).join('')||'<span style="color:var(--mut)">Boş liste</span>'}</div></div>`).join('')||'<span style="color:var(--mut)">Henüz liste yok.</span>';
 }
 $('lists').onclick=async e=>{const d=e.target.dataset;
   if(d.dl&&confirm('Liste silinsin mi?'))await api('/api/lists/'+d.dl,{method:'DELETE'});
@@ -366,12 +374,12 @@ function render(){
   if(so==='hi')a.sort((x,y)=>y.score-x.score);if(so==='lo')a.sort((x,y)=>x.score-y.score);if(so==='az')a.sort((x,y)=>x.name.localeCompare(y.name,'tr'));
   renderTier(a);
   $('list').innerHTML=a.slice(0,lim).map(p=>`<div class="row" id="oyun-${p.id}" data-id="${p.id}">
-   ${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" width="96" height="45">`:'<div class="ph"></div>'}
-   <div><h3><button class="rt" type="button" data-a="tg" aria-expanded="false">${esc(p.name)}</button></h3><small>${esc(p.played_at)} · ${esc(p.genres.map(tg).join(', ')||'Tür yok')}${p.v_n?` · izleyici ${fmt(p.v_avg)} (${p.v_n} oy)`:''}</small> <span class="st ${p.status}">${STN[p.status]||''}</span>${p.tags.length?`<span class="chips">${p.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</span>`:''}</div><div class="sc">${fmt(p.score)}</div>
+   ${p.image?`<a class="cvl" href="/oyun/${p.appid}" tabindex="-1" aria-hidden="true"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" width="96" height="45"></a>`:'<div class="ph"></div>'}
+   <div><h3><a class="rt" href="/oyun/${p.appid}">${esc(p.name)}</a></h3><small>${esc(p.played_at)} · ${esc(p.genres.map(tg).join(', ')||'Tür yok')}${p.v_n?` · izleyici ${fmt(p.v_avg)} (${p.v_n} oy)`:''}</small> <span class="st ${p.status}">${STN[p.status]||''}</span>${p.tags.length?`<span class="chips">${p.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</span>`:''}</div><div class="scw"><div class="sc">${fmt(p.score)}</div><button class="tgl" type="button" data-a="tg" aria-expanded="false" aria-label="Ayrıntıları aç veya kapat" title="Oy ver, ayrıntılar">▾</button></div>
    ${p.note?`<div class="note">${esc(p.note)}</div>`:''}
    <div class="vt">${voted().includes(p.id)?'Oyun kaydedildi, teşekkürler.':`<span>Sen kaç verirdin?</span><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><b>7</b><button data-a="vote">Oy ver</button>`}</div>
-   <div class="lnk"><a class="link" href="/oyun/${p.appid}">Oyun sayfası</a>${p.video_url?`<a class="link" href="${esc(p.video_url)}" target="_blank" rel="noopener">▶ Yayın kaydını izle</a>`:''}<button class="link" data-a="cp">Bağlantıyı kopyala</button></div>
-   <div class="acts ${admin?'on':''}"><button data-a="rv">Puanı tekrar aç</button><button data-a="ov">Overlay'e gönder</button>${lists.length?`<select data-a="al" aria-label="Listeye ekle"><option value="">Listeye ekle…</option>${lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select>`:''}<button data-a="ed">Düzenle</button>${role==='owner'?'<button data-a="del">Sil</button>':''}</div></div>`).join('')||'<p style="color:var(--mut)">Eşleşen oyun yok.</p>';
+   <div class="lnk"><a class="btnlink" href="/oyun/${p.appid}">Oyun sayfasına git →</a>${p.video_url?`<a class="link" href="${esc(p.video_url)}" target="_blank" rel="noopener">▶ Yayın kaydını izle</a>`:''}<button class="link" data-a="cp">Bağlantıyı kopyala</button></div>
+   <div class="acts ${admin?'on':''}"><button data-a="rv">Puanı tekrar aç</button><button data-a="ov" title="OBS yayın ekranında (overlay) bu oyunun puan açılışını 20 saniye gösterir">Yayın ekranına gönder</button>${lists.length?`<select data-a="al" aria-label="Listeye ekle"><option value="">Listeye ekle…</option>${lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select>`:''}<button data-a="ed">Düzenle</button>${role==='owner'?'<button data-a="del">Sil</button>':''}</div></div>`).join('')||'<p style="color:var(--mut)">Eşleşen oyun yok.</p>';
   $('more').hidden=a.length<=lim;$('more').textContent=`Daha fazla göster (${a.length-lim} oyun daha)`;
 }
 $('list').onclick=e=>{const r=e.target.closest('.row');if(!r)return;const p=plays.find(x=>x.id==r.dataset.id),a=e.target.dataset.a;
@@ -385,7 +393,7 @@ $('list').onclick=e=>{const r=e.target.closest('.row');if(!r)return;const p=play
   if(a==='ed'){editId=p.id;pickId=p.appid;openDlg(p);return}
   if(a==='del'){if(confirm(p.name+' kaydı silinsin mi?'))api('/api/plays/'+p.id,{method:'DELETE'}).then(load);return}
   if(!a)togRow(r)};
-function togRow(r){r.classList.toggle('open');const b=r.querySelector('.rt');if(b)b.setAttribute('aria-expanded',r.classList.contains('open'))}
+function togRow(r){r.classList.toggle('open');const b=r.querySelector('.tgl');if(b)b.setAttribute('aria-expanded',r.classList.contains('open'))}
 ['gf','sf','tf','so','fmin','fmax','fyr','fvd','fvid'].forEach(i=>$(i).oninput=()=>{lim=20;render()});
 let qt;$('q').oninput=()=>{clearTimeout(qt);qt=setTimeout(()=>{lim=20;render()},150)};
 for(let i=0;i<=10;i++){$('fmin').add(new Option(i,i));$('fmax').add(new Option(i,i))}$('fmax').value=10;
@@ -459,7 +467,7 @@ function renderTier(a){
   const m={};a.forEach(p=>{(m[p.appid]=m[p.appid]||{p,s:[]}).s.push(p.score)});
   const g=Object.values(m).map(o=>({...o.p,avg:o.s.reduce((u,v)=>u+v,0)/o.s.length})).sort((x,y)=>y.avg-x.avg);
   $('tier').innerHTML=TIERS.map(([L,min,c],i)=>{const up=i?TIERS[i-1][1]:11,it=g.filter(x=>x.avg>=min&&x.avg<up);
-    return `<div class="tr"><div class="tl" style="background:${c}">${L}</div><div class="tg">${it.map(x=>`<div class="tc" title="${esc(x.name)}">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy">`:'<div class="ph"></div>'}${esc(x.name)} <b style="color:${c}">${fmt(+x.avg.toFixed(1))}</b></div>`).join('')||'<span style="color:var(--mut)">–</span>'}</div></div>`}).join('');
+    return `<div class="tr"><div class="tl" style="background:${c}">${L}</div><div class="tg">${it.map(x=>`<a class="tc" href="/oyun/${x.appid}" title="${esc(x.name)}">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy">`:'<div class="ph"></div>'}${esc(x.name)} <b style="color:${c}">${fmt(+x.avg.toFixed(1))}</b></a>`).join('')||'<span style="color:var(--mut)">–</span>'}</div></div>`}).join('');
 }
 function view(t){$('list').hidden=t;$('tier').hidden=!t;$('vlist').classList.toggle('on',!t);$('vtier').classList.toggle('on',t)}
 $('vlist').onclick=()=>view(false);$('vtier').onclick=()=>view(true);
@@ -521,7 +529,7 @@ $('more').onclick=()=>{lim+=20;render()};
 $('sq').onkeydown=e=>{if(e.key==='Enter'){const b=$('res').querySelector('button');if(b)b.click()}};
 function openHash(){const m=location.hash.match(/^#oyun-(\d+)$/);if(!m)return;let r=$('oyun-'+m[1]);
   if(!r&&plays.some(p=>p.id==m[1])){lim=plays.length;render();r=$('oyun-'+m[1])}
-  if(r){r.classList.add('open');const b=r.querySelector('.rt');if(b)b.setAttribute('aria-expanded','true');r.scrollIntoView({block:'center'})}}
+  if(r){r.classList.add('open');const b=r.querySelector('.tgl');if(b)b.setAttribute('aria-expanded','true');r.scrollIntoView({block:'center'})}}
 async function loadAdm(){try{const a=await api('/api/admins');$('adl').innerHTML=a.map(x=>`<div class="li"><span>${esc(x.username)}</span><button class="link" type="button" data-id="${x.id}">Kaldır</button></div>`).join('')||'<small class="mut">Henüz ekip hesabı yok.</small>'}catch(e){$('mge').textContent=e.message}}
 $('mgb').onclick=()=>{$('mge').textContent='';$('mg').showModal();loadAdm()};
 $('mx').onclick=()=>$('mg').close();
