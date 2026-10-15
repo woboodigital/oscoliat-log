@@ -24,9 +24,12 @@ CREATE TABLE IF NOT EXISTS plays (
 
 for (const sql of [
   "ALTER TABLE plays ADD COLUMN status TEXT DEFAULT 'bitirdi'",
-  "ALTER TABLE plays ADD COLUMN tags TEXT DEFAULT '[]'"
+  "ALTER TABLE plays ADD COLUMN tags TEXT DEFAULT '[]'",
+  "ALTER TABLE plays ADD COLUMN video_url TEXT DEFAULT ''"
 ]) { try { db.exec(sql); } catch (e) { /* kolon zaten var */ } }
 db.exec(`
+CREATE TABLE IF NOT EXISTS admins (
+  id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, pass TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP);
 CREATE TABLE IF NOT EXISTS lists (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS list_items (
   list_id INTEGER NOT NULL REFERENCES lists(id) ON DELETE CASCADE,
