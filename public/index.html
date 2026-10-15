@@ -12,6 +12,9 @@
 <meta property="og:image" content="__ORIGIN__/logo.webp"><meta property="og:url" content="__ORIGIN__/">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="/logo.webp" type="image/webp">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://i.ytimg.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
 <style>
@@ -174,9 +177,22 @@ dialog{max-width:560px}
 .pk{display:flex;gap:12px;align-items:center;margin-top:14px;padding:10px;border:1px solid var(--gold);border-radius:12px;background:#f4c43010}
 .pk img{width:96px;border-radius:6px}.pk small{display:block;color:var(--mut)}.pk b{overflow-wrap:anywhere}
 .dact{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+/* ---- Yönetim, filtreler, erişilebilirlik, alt bilgi ---- */
+.mut{color:var(--mut)}
+.skip{position:absolute;left:-999px;top:8px;background:var(--gold);color:#241a00;padding:8px 12px;border-radius:8px;z-index:50}.skip:focus{left:8px}
+.row h3 .rt{background:none;border:0;padding:0;color:inherit;font:inherit;text-align:left;cursor:pointer;max-width:100%;overflow-wrap:anywhere}
+.lnk{gap:4px 12px;flex-wrap:wrap;align-items:center}.row.open .lnk{display:flex}
+.lnk a.link{text-decoration:none;color:var(--mut);padding:4px}.lnk a.link:hover{color:var(--tx)}
+.adv{align-items:center;margin:0 0 10px}.adv select{flex:0 0 auto;width:auto}
+.ck{display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:.9rem;color:var(--tx);margin:0}.ck input{width:auto}
+a.btnlink{display:inline-block;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surf);color:var(--tx);text-decoration:none}a.btnlink:hover{border-color:var(--gold)}
+.adl .li{align-items:center}.adf{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.adf input{flex:1 1 150px}
+footer{display:block}.fr{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.fl2{margin-top:10px}.fl2 a{margin:0 16px 0 0;color:var(--mut)}.disc{margin:12px 0 0;font-size:.82rem;opacity:.85}
 </style>
 </head>
 <body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <symbol id="i-pad" viewBox="0 0 24 24"><path d="M6.5 8h11a4.5 4.5 0 0 1 4.4 5.4l-.8 3.8a2 2 0 0 1-3.4 1L15 16H9l-2.7 2.2a2 2 0 0 1-3.4-1l-.8-3.8A4.5 4.5 0 0 1 6.5 8z"/><path d="M8 10.5v3M6.5 12h3"/><circle cx="15.5" cy="11.5" r=".9"/><circle cx="17.8" cy="13.3" r=".9"/></symbol>
 <symbol id="i-stick" viewBox="0 0 24 24"><circle cx="12" cy="6" r="3"/><path d="M12 9v6"/><rect x="5" y="15" width="14" height="5" rx="1.5"/><circle cx="9" cy="17.5" r=".8"/><circle cx="12.5" cy="17.5" r=".8"/></symbol>
@@ -189,14 +205,14 @@ dialog{max-width:560px}
 <symbol id="i-sword" viewBox="0 0 24 24"><path d="M20 4l-9.5 9.5M20 4h-5M20 4v5M8 12l4 4M6.5 17.5L4 20"/></symbol>
 </defs></svg>
 <div id="bg" aria-hidden="true"></div>
-<main>
+<main id="icerik">
 <nav class="top">
   <div class="r"><a class="brand" href="#puan">Osco<span>Matik</span></a><a class="link" href="#videolar">Videolar</a><a class="link" href="#hakkinda">Hakkında</a></div>
-  <div class="r"><button class="link" id="lvb" hidden>Rozet: otomatik</button><a class="link" id="csv" href="/api/export.csv" hidden>CSV indir</a><button class="link" id="adm">Yayıncı girişi</button><button class="pri" id="add" hidden>Oyun ekle</button></div>
+  <div class="r"><button class="link" id="lvb" hidden>Rozet: otomatik</button><button class="link" id="mgb" hidden>Yönetim</button><button class="link" id="adm">Yayıncı girişi</button><button class="pri" id="add" hidden>Oyun ekle</button></div>
 </nav>
 
 <section class="hero">
-  <img class="lg" id="logo" src="/logo.webp" width="132" height="132" alt="Oscoliat logosu">
+  <img class="lg" id="logo" src="/logo.webp" width="132" height="132" fetchpriority="high" alt="Oscoliat logosu">
   <div>
     <a class="live" id="lv" href="https://kick.com/oscoliat" target="_blank" rel="noopener" hidden><i></i><span id="lvt">Şimdi yayında</span></a>
     <h1>Oscoliat</h1>
@@ -214,6 +230,11 @@ dialog{max-width:560px}
     <select id="sf" aria-label="Durum"><option value="">Tüm durumlar</option><option value="bitirdi">Bitirdi</option><option value="yarida">Yarıda bıraktı</option><option value="tekrar">Tekrar oynanacak</option></select>
     <select id="tf" aria-label="Etiket"><option value="">Tüm etiketler</option></select>
     <select id="so" aria-label="Sırala"><option value="date">En yeni</option><option value="hi">Puan: yüksek</option><option value="lo">Puan: düşük</option><option value="az">Oyun adı: A–Z</option></select></div>
+    <button class="link" id="fx" type="button" aria-expanded="false" aria-controls="fadv">Gelişmiş filtreler ▾</button>
+    <div class="bar adv" id="fadv" hidden><span class="mut">Puan</span><select id="fmin" aria-label="En düşük puan"></select><span class="mut">–</span><select id="fmax" aria-label="En yüksek puan"></select>
+      <select id="fyr" aria-label="Yıl"><option value="">Tüm yıllar</option></select>
+      <label class="ck"><input type="checkbox" id="fvd"> İzleyiciyle ayrışanlar</label><label class="ck"><input type="checkbox" id="fvid"> Yayın kaydı olanlar</label>
+      <button class="link" id="frs" type="button">Sıfırla</button></div>
     <div class="vw"><button class="on" id="vlist">Liste</button><button id="vtier">Tier listesi</button></div>
     <div id="list"></div><button id="more" hidden style="margin:12px auto 0;display:block">Daha fazla göster</button><div id="tier" hidden></div>
   </div>
@@ -222,7 +243,7 @@ dialog{max-width:560px}
 <section class="sec" id="vsec" hidden>
   <div class="sh"><div><h2 id="videolar">Son videolar</h2><p>YouTube kanalından en yeni içerikler.</p></div>
     <div class="arr"><button id="vp" aria-label="Önceki videolar">‹</button><button id="vn" aria-label="Sonraki videolar">›</button></div></div>
-  <div class="vg" id="vg"></div>
+  <div class="vg" id="vg" tabindex="0" role="region" aria-label="Son videolar"></div>
 </section>
 
 <section class="sec" id="hakkinda">
@@ -257,12 +278,16 @@ dialog{max-width:560px}
 </section>
 
 <section class="sec">
-  <div class="sh"><div><h2>Yıllık özet</h2><p>Paylaşılabilir özet kartı.</p></div>
-    <div class="bar" style="margin:0"><select id="yy" aria-label="Yıl" style="max-width:120px"></select><button id="ydl" hidden>Görseli indir</button></div></div>
+  <div class="sh"><div><h2>Yıllık özet</h2><p>Yıllık ve aylık, paylaşılabilir özet kartı.</p></div>
+    <div class="bar" style="margin:0"><select id="yy" aria-label="Dönem" style="max-width:220px"></select><button id="ydl" hidden>Görseli indir</button></div></div>
   <div id="yc"></div>
 </section>
 
-<footer><span>© Oscoliat · OscoMatik</span><span><a href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick</a><a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></span></footer>
+<footer>
+  <div class="fr"><span>© Oscoliat · OscoMatik</span><span><a href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick</a><a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></span></div>
+  <div class="fl2"><a href="/gizlilik">Gizlilik politikası</a><a href="/cerez">Çerez politikası</a></div>
+  <p class="disc">Oyun adları, kapak görselleri ve markalar ilgili hak sahiplerine aittir. Bu site Valve/Steam, Kick, Google/YouTube, Discord veya Meta ile bağlantılı değildir. Puanlar ve notlar yayıncının kişisel görüşüdür.</p>
+</footer>
 </main>
 
 <dialog id="dl"><form method="dialog" id="fm" onsubmit="return false">
@@ -275,14 +300,25 @@ dialog{max-width:560px}
   <div class="fld"><label>Durum</label><div class="seg" id="sg"><button type="button" data-v="bitirdi">Bitirdi</button><button type="button" data-v="yarida">Yarıda bıraktı</button><button type="button" data-v="tekrar">Tekrar oynanacak</button></div><input type="hidden" id="stt" value="bitirdi"></div>
   <div class="fld"><label for="dt2">Oynanma tarihi</label><input id="dt2" type="date"></div>
   <div class="fld"><label for="tgs">Etiketler</label><input id="tgs" placeholder="izleyici seçti, korku, bağış hedefi"><div class="tsg" id="tsg"></div></div>
+  <div class="fld"><label for="vu">Yayın kaydı / video bağlantısı</label><input id="vu" type="url" inputmode="url" placeholder="YouTube veya Kick bağlantısı (isteğe bağlı)"></div>
   <div class="fld"><label for="nt">Not</label><textarea id="nt" rows="3" maxlength="2000" placeholder="İstersen oyun hakkında bir not bırak"></textarea></div>
   <div id="err" role="alert"></div>
   <div class="dact"><button type="button" id="cx">Vazgeç</button><button class="pri" id="sv">Kaydet ve puanı aç</button></div>
 </form></dialog>
 <dialog id="lg"><form onsubmit="return false"><h2 style="margin-top:0">Yayıncı girişi</h2>
+  <label for="un">Kullanıcı adı <small style="text-transform:none;letter-spacing:0">(ekip üyeleri için; yayıncı boş bırakır)</small></label><input id="un" autocomplete="username" autocapitalize="none">
   <label for="pw">Şifre</label><input id="pw" type="password" autocomplete="current-password">
   <div id="lerr" style="color:var(--bad);min-height:1.4em" role="alert"></div>
   <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="lc">Vazgeç</button><button class="pri" id="lo">Giriş yap</button></div></form></dialog>
+<dialog id="mg"><div class="dh"><h2>Yönetim</h2><button type="button" class="x" id="mx" aria-label="Kapat">✕</button></div>
+  <div class="fld"><label>Ekip hesapları</label><div class="adl" id="adl"></div>
+    <div class="adf"><input id="anu" placeholder="kullanıcı adı" autocomplete="off" autocapitalize="none" aria-label="Yeni kullanıcı adı"><input id="anp" type="password" placeholder="şifre (en az 10 karakter)" autocomplete="new-password" aria-label="Yeni şifre"><button class="pri" id="aad" type="button">Ekle</button></div>
+    <small class="mut">Ekip üyeleri oyun ekleyip düzenleyebilir. Silme, yedek ve hesap yönetimi sadece sende.</small></div>
+  <div class="fld"><label>Yedek</label>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btnlink" href="/api/backup">Yedeği indir (JSON)</a><a class="btnlink" href="/api/export.csv">CSV indir</a><button type="button" id="rsb">Yedekten geri yükle…</button><input type="file" id="rsf" accept="application/json,.json" hidden></div>
+    <small class="mut">Geri yükleme mevcut kayıtların üzerine yazar, hiçbir şeyi silmez.</small></div>
+  <div id="mge" role="alert" style="min-height:1.4em;margin-top:10px"></div>
+</dialog>
 <div id="rv"><canvas id="cf"></canvas><i id="rf"></i><i id="rg"></i><button id="rx" aria-label="Kapat">✕</button><small id="rb">OscoMatik</small><img id="ri" alt=""><h2 id="rt"></h2><div id="rn">0</div><p id="rp"></p><small id="rh">Kapatmak için dokun · Esc</small></div>
 
 <script>
@@ -293,15 +329,15 @@ const TRG={Action:'Aksiyon',Adventure:'Macera',Casual:'Rahat',Indie:'Bağımsız
 const tg=g=>TRG[g]||g;
 const api=async(u,o={})=>{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o,body:o.body&&JSON.stringify(o.body)});
   const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Hata');return j};
-let lim=20,plays=[],lists=[],admin=false,pickId=null,pickName='',editId=null;
+let lim=20,role=null,plays=[],lists=[],admin=false,pickId=null,pickName='',editId=null;
 
 async function load(){
   const [p,s,me,ls]=await Promise.all([api('/api/plays'),api('/api/stats'),api('/api/me'),api('/api/lists')]);
-  plays=p;lists=ls;$('nl').hidden=!me.admin;admin=me.admin;$('add').hidden=!admin;$('csv').hidden=!admin;$('lvb').hidden=!admin;$('adm').textContent=admin?'Çıkış':'Yayıncı girişi';
+  plays=p;lists=ls;$('nl').hidden=!me.admin;admin=me.admin;$('add').hidden=!admin;role=me.role;$('mgb').hidden=role!=='owner';$('lvb').hidden=!admin;$('adm').textContent=admin?'Çıkış':'Yayıncı girişi';
   $('sum').innerHTML=s.total?`<div><b>${s.total}</b><span>oyun puanlandı</span></div><div><b>${fmt(s.average)}</b><span>ortalama puan</span></div>
    <div><b>${esc(tg(s.genres[0]?.name||'-'))}</b><span>en çok oynanan tür</span></div><div><b>${esc(s.best[0].name)}</b><span>en yüksek puan: ${fmt(s.best[0].score)}</span></div>`:'<span style="color:var(--mut)">Henüz oyun yok.</span>';
   const li=a=>a.length?a.map(x=>`<div class="li"><span>${esc(x.name)}</span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
-  $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);$('sw').hidden=s.total<6;ALLTAGS=s.tags.map(t=>t.name);
+  $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);$('sw').hidden=s.total<6;ALLTAGS=s.tags.map(t=>t.name);fillYears();
   const dmx=Math.max(1,...s.distribution);$('dist').innerHTML=s.distribution.map((c,i)=>`<div><b>${c||''}</b><i style="height:${Math.round(c/dmx*80)}px"></i><span>${i}</span></div>`).join('');
   const vd=p.filter(x=>x.v_n>=3).map(x=>({...x,d:Math.abs(x.score-x.v_avg)})).sort((x,y)=>y.d-x.d).slice(0,3);
   $('vd').hidden=!vd.length;$('vdl').innerHTML=vd.map(x=>`<div class="li"><span>${esc(x.name)}</span><span>Oscoliat <b>${fmt(x.score)}</b> · izleyici <b>${fmt(x.v_avg)}</b> (${x.v_n} oy)</span></div>`).join('');
@@ -317,7 +353,7 @@ const markVoted=id=>{try{localStorage.setItem('voted',JSON.stringify([...voted()
 $('list').addEventListener('input',e=>{if(e.target.matches('.vt input')){e.target.nextElementSibling.textContent=fmt(+e.target.value);e.target.style.setProperty('--p',e.target.value*10+'%')}});
 const STN={bitirdi:'Bitirdi',yarida:'Yarıda bıraktı',tekrar:'Tekrar oynanacak'};
 function renderLists(){
-  $('lists').innerHTML=lists.map(l=>`<div><div class="lh"><h3>${esc(l.name)} (${l.items.length})</h3>${admin?`<button class="link" data-dl="${l.id}">Listeyi sil</button>`:''}</div>
+  $('lists').innerHTML=lists.map(l=>`<div><div class="lh"><h3>${esc(l.name)} (${l.items.length})</h3>${role==='owner'?`<button class="link" data-dl="${l.id}">Listeyi sil</button>`:''}</div>
    <div class="fl">${l.items.map(i=>`<div>${i.image?`<img src="${esc(i.image)}" alt="" loading="lazy">`:''}${esc(i.name)} <b style="color:var(--gold)">${i.score==null?'':fmt(i.score)}</b>${admin?` <button class="link" data-ri="${l.id}:${i.appid}" aria-label="Listeden çıkar">×</button>`:''}</div>`).join('')||'<span style="color:var(--mut)">Boş liste</span>'}</div></div>`).join('')||'<span style="color:var(--mut)">Henüz liste yok.</span>';
 }
 $('lists').onclick=async e=>{const d=e.target.dataset;
@@ -326,19 +362,21 @@ $('lists').onclick=async e=>{const d=e.target.dataset;
 $('nl').onclick=async()=>{const n=prompt('Liste adı (örn. 2026 en iyileri)');if(n){await api('/api/lists',{method:'POST',body:{name:n}});load()}};
 function render(){
   const q=$('q').value.toLowerCase(),g=$('gf').value,so=$('so').value;
-  let a=plays.filter(p=>(!g||p.genres.includes(g))&&(!$('sf').value||p.status===$('sf').value)&&(!$('tf').value||p.tags.includes($('tf').value))&&(!q||(p.name+' '+p.note).toLowerCase().includes(q)));
+  let a=plays.filter(p=>(!g||p.genres.includes(g))&&(!$('sf').value||p.status===$('sf').value)&&(!$('tf').value||p.tags.includes($('tf').value))&&(!q||(p.name+' '+p.note).toLowerCase().includes(q))&&advOk(p));
   if(so==='hi')a.sort((x,y)=>y.score-x.score);if(so==='lo')a.sort((x,y)=>x.score-y.score);if(so==='az')a.sort((x,y)=>x.name.localeCompare(y.name,'tr'));
   renderTier(a);
   $('list').innerHTML=a.slice(0,lim).map(p=>`<div class="row" id="oyun-${p.id}" data-id="${p.id}">
-   ${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy">`:'<div class="ph"></div>'}
-   <div><h3>${esc(p.name)}</h3><small>${esc(p.played_at)} · ${esc(p.genres.map(tg).join(', ')||'Tür yok')}${p.v_n?` · izleyici ${fmt(p.v_avg)} (${p.v_n} oy)`:''}</small> <span class="st ${p.status}">${STN[p.status]||''}</span>${p.tags.length?`<span class="chips">${p.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</span>`:''}</div><div class="sc">${fmt(p.score)}</div>
+   ${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" width="96" height="45">`:'<div class="ph"></div>'}
+   <div><h3><button class="rt" type="button" data-a="tg" aria-expanded="false">${esc(p.name)}</button></h3><small>${esc(p.played_at)} · ${esc(p.genres.map(tg).join(', ')||'Tür yok')}${p.v_n?` · izleyici ${fmt(p.v_avg)} (${p.v_n} oy)`:''}</small> <span class="st ${p.status}">${STN[p.status]||''}</span>${p.tags.length?`<span class="chips">${p.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</span>`:''}</div><div class="sc">${fmt(p.score)}</div>
    ${p.note?`<div class="note">${esc(p.note)}</div>`:''}
    <div class="vt">${voted().includes(p.id)?'Oyun kaydedildi, teşekkürler.':`<span>Sen kaç verirdin?</span><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><b>7</b><button data-a="vote">Oy ver</button>`}</div>
-   <div class="lnk"><button class="link" data-a="cp">Bağlantıyı kopyala</button></div>
-   <div class="acts ${admin?'on':''}"><button data-a="rv">Puanı tekrar aç</button><button data-a="ov">Overlay'e gönder</button>${lists.length?`<select data-a="al" aria-label="Listeye ekle"><option value="">Listeye ekle…</option>${lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select>`:''}<button data-a="ed">Düzenle</button><button data-a="del">Sil</button></div></div>`).join('')||'<p style="color:var(--mut)">Eşleşen oyun yok.</p>';
+   <div class="lnk"><a class="link" href="/oyun/${p.appid}">Oyun sayfası</a>${p.video_url?`<a class="link" href="${esc(p.video_url)}" target="_blank" rel="noopener">▶ Yayın kaydını izle</a>`:''}<button class="link" data-a="cp">Bağlantıyı kopyala</button></div>
+   <div class="acts ${admin?'on':''}"><button data-a="rv">Puanı tekrar aç</button><button data-a="ov">Overlay'e gönder</button>${lists.length?`<select data-a="al" aria-label="Listeye ekle"><option value="">Listeye ekle…</option>${lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select>`:''}<button data-a="ed">Düzenle</button>${role==='owner'?'<button data-a="del">Sil</button>':''}</div></div>`).join('')||'<p style="color:var(--mut)">Eşleşen oyun yok.</p>';
   $('more').hidden=a.length<=lim;$('more').textContent=`Daha fazla göster (${a.length-lim} oyun daha)`;
 }
 $('list').onclick=e=>{const r=e.target.closest('.row');if(!r)return;const p=plays.find(x=>x.id==r.dataset.id),a=e.target.dataset.a;
+  if(e.target.closest('a'))return;
+  if(a==='tg'){togRow(r);return}
   if(a==='cp'){const u=location.origin+location.pathname+'#oyun-'+p.id;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>{e.target.textContent='Kopyalandı ✓'}).catch(()=>prompt('Bağlantı:',u));return}
   if(a==='rv')return reveal(p);
   if(a==='al')return;
@@ -346,15 +384,24 @@ $('list').onclick=e=>{const r=e.target.closest('.row');if(!r)return;const p=play
   if(a==='ov')return api('/api/overlay/show',{method:'POST',body:{play_id:p.id}}).then(()=>alert('Overlay\'e gönderildi'));
   if(a==='ed'){editId=p.id;pickId=p.appid;openDlg(p);return}
   if(a==='del'){if(confirm(p.name+' kaydı silinsin mi?'))api('/api/plays/'+p.id,{method:'DELETE'}).then(load);return}
-  if(!a)r.classList.toggle('open')};
-['q','gf','sf','tf','so'].forEach(i=>$(i).oninput=()=>{lim=20;render()});
+  if(!a)togRow(r)};
+function togRow(r){r.classList.toggle('open');const b=r.querySelector('.rt');if(b)b.setAttribute('aria-expanded',r.classList.contains('open'))}
+['gf','sf','tf','so','fmin','fmax','fyr','fvd','fvid'].forEach(i=>$(i).oninput=()=>{lim=20;render()});
+let qt;$('q').oninput=()=>{clearTimeout(qt);qt=setTimeout(()=>{lim=20;render()},150)};
+for(let i=0;i<=10;i++){$('fmin').add(new Option(i,i));$('fmax').add(new Option(i,i))}$('fmax').value=10;
+$('fx').onclick=()=>{const o=$('fadv').hidden;$('fadv').hidden=!o;$('fx').setAttribute('aria-expanded',o)};
+$('frs').onclick=()=>{$('fmin').value=0;$('fmax').value=10;$('fyr').value='';$('fvd').checked=$('fvid').checked=false;lim=20;render()};
+function advOk(p){return p.score>=+$('fmin').value&&p.score<=+$('fmax').value&&(!$('fyr').value||p.played_at.startsWith($('fyr').value))
+  &&(!$('fvd').checked||(p.v_n>=3&&Math.abs(p.score-p.v_avg)>=1.5))&&(!$('fvid').checked||!!p.video_url)}
+function fillYears(){const ys=[...new Set(plays.map(p=>p.played_at.slice(0,4)))].sort().reverse(),c=$('fyr').value;
+  $('fyr').innerHTML='<option value="">Tüm yıllar</option>'+ys.map(y=>`<option>${y}</option>`).join('');$('fyr').value=ys.includes(c)?c:''}
 $('list').onchange=async e=>{if(e.target.dataset.a!=='al'||!e.target.value)return;const r=e.target.closest('.row'),p=plays.find(x=>x.id==r.dataset.id);
   await api(`/api/lists/${e.target.value}/items`,{method:'POST',body:{appid:p.appid}});load()};
 
 // Giriş
 $('adm').onclick=async()=>{if(admin){await api('/api/logout',{method:'POST'});load()}else{$('lerr').textContent='';$('lg').showModal();$('pw').focus()}};
 $('lc').onclick=()=>$('lg').close();
-$('lo').onclick=async()=>{try{await api('/api/login',{method:'POST',body:{password:$('pw').value}});$('pw').value='';$('lg').close();load()}catch(e){$('lerr').textContent=e.message}};
+$('lo').onclick=async()=>{try{await api('/api/login',{method:'POST',body:{username:$('un').value,password:$('pw').value}});$('pw').value='';$('lg').close();load()}catch(e){$('lerr').textContent=e.message}};
 $('pw').onkeydown=e=>{if(e.key==='Enter')$('lo').click()};
 
 // Oyun ekle / düzenle
@@ -363,7 +410,7 @@ function openDlg(p){
   $('dt').textContent=p?'Kaydı düzenle':'Oyun ekle';$('srch').hidden=!!p;$('nmw').hidden=!p;$('nm').value=p?p.name:'';
   showPick(p?p.appid:0,p?p.name:'',p&&p.image);pickName=p?p.name:'';
   $('stt').value=p?p.status:'bitirdi';syncSt();$('tgs').value=p?p.tags.join(', '):'';tagSug();$('sc').value=p?p.score:7;scUpd();
-  $('dt2').value=p?p.played_at:new Date().toISOString().slice(0,10);$('nt').value=p?p.note:'';$('dl').showModal();if(!p)$('sq').focus();
+  $('dt2').value=p?p.played_at:new Date().toISOString().slice(0,10);$('nt').value=p?p.note:'';$('vu').value=p?(p.video_url||''):'';$('dl').showModal();if(!p)$('sq').focus();
 }
 $('add').onclick=()=>{editId=null;pickId=null;openDlg()};
 $('cx').onclick=()=>$('dl').close();
@@ -374,7 +421,7 @@ let t;$('sq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{
 $('res').onclick=e=>{const b=e.target.closest('button');if(!b)return;pickId=+b.dataset.id;pickName=b.dataset.n;showPick(pickId,pickName,STEAMIMG(pickId));$('res').innerHTML=''};
 $('sv').onclick=async()=>{
   if(!pickId)return $('err').textContent='Önce bir oyun seç.';
-  const body={appid:pickId,name:editId?$('nm').value:pickName,score:+$('sc').value,played_at:$('dt2').value,note:$('nt').value,status:$('stt').value,tags:$('tgs').value.split(',')};
+  const body={appid:pickId,name:editId?$('nm').value:pickName,score:+$('sc').value,played_at:$('dt2').value,note:$('nt').value,video_url:$('vu').value,status:$('stt').value,tags:$('tgs').value.split(',')};
   try{const r=editId?(await api('/api/plays/'+editId,{method:'PUT',body}),null):await api('/api/plays',{method:'POST',body});
     $('dl').close();await load();if(r)reveal(r)}catch(e){$('err').textContent=e.message}};
 
@@ -417,43 +464,46 @@ function renderTier(a){
 function view(t){$('list').hidden=t;$('tier').hidden=!t;$('vlist').classList.toggle('on',!t);$('vtier').classList.toggle('on',t)}
 $('vlist').onclick=()=>view(false);$('vtier').onclick=()=>view(true);
 
-function yearData(y){
-  const a=plays.filter(p=>p.played_at.slice(0,4)===y);if(!a.length)return null;
-  const top1=f=>{const m={};a.forEach(p=>f(p).forEach(k=>m[k]=(m[k]||0)+1));return Object.entries(m).sort((x,z)=>z[1]-x[1])[0]};
-  const top=[...a].sort((x,z)=>z.score-x.score),mo=top1(p=>[p.played_at.slice(0,7)]),ge=top1(p=>p.genres);
-  return{y,n:a.length,avg:+(a.reduce((s,p)=>s+p.score,0)/a.length).toFixed(1),best:top[0],top:top.slice(0,3),
-    genre:ge?tg(ge[0]):'-',month:AY[(mo?+mo[0].slice(5):0)-1]||'-',monthN:mo?mo[1]:0,done:a.filter(p=>p.status==='bitirdi').length};
+function yearData(k){
+  const a=plays.filter(p=>p.played_at.startsWith(k));if(!a.length)return null;
+  const mon=k.length===7,top1=f=>{const m={};a.forEach(p=>f(p).forEach(x=>m[x]=(m[x]||0)+1));return Object.entries(m).sort((x,z)=>z[1]-x[1])[0]};
+  const top=[...a].sort((x,z)=>z.score-x.score),ge=top1(p=>p.genres),pk=top1(p=>[mon?p.played_at:p.played_at.slice(0,7)]);
+  const label=mon?`${AY[+k.slice(5)-1]} ${k.slice(0,4)}`:k;
+  const peak=pk?(mon?`En yoğun gün: ${+pk[0].slice(8)} ${AY[+k.slice(5)-1]} (${pk[1]} oyun)`:`En yoğun ay: ${AY[+pk[0].slice(5)-1]} (${pk[1]} oyun)`):'';
+  return{k,label,mon,n:a.length,avg:+(a.reduce((s,p)=>s+p.score,0)/a.length).toFixed(1),best:top[0],top:top.slice(0,3),
+    genre:ge?tg(ge[0]):'-',peak,done:a.filter(p=>p.status==='bitirdi').length,bestLabel:mon?'Ayın en yüksek puanlısı':'Yılın en yüksek puanlısı'};
 }
 function renderYear(){
   const ys=[...new Set(plays.map(p=>p.played_at.slice(0,4)))].sort().reverse(),cur=$('yy').value;
-  $('yy').innerHTML=ys.map(y=>`<option>${y}</option>`).join('');if(ys.includes(cur))$('yy').value=cur;
+  $('yy').innerHTML=ys.map(y=>`<optgroup label="${y}"><option value="${y}">${y} tüm yıl</option>${[...new Set(plays.filter(p=>p.played_at.startsWith(y)).map(p=>p.played_at.slice(0,7)))].sort().reverse().map(m=>`<option value="${m}">${AY[+m.slice(5)-1]} ${y}</option>`).join('')}</optgroup>`).join('');
+  if(cur&&$('yy').querySelector(`option[value="${cur}"]`))$('yy').value=cur;
   const d=yearData($('yy').value);$('ydl').hidden=!d;
-  $('yc').innerHTML=d?`<div class="yr"><h3>Oscoliat ${d.y} özeti</h3>
+  $('yc').innerHTML=d?`<div class="yr"><h3>Oscoliat ${esc(d.label)} özeti</h3>
    <div class="big"><div><b>${d.n}</b>oyun</div><div><b>${fmt(d.avg)}</b>ortalama puan</div><div><b>${d.done}</b>bitirilen</div></div>
-   <div class="bg">${d.best.image?`<img src="${esc(d.best.image)}" alt="">`:''}<div><small>Yılın en yüksek puanlısı</small><br><b style="font:800 1.3rem var(--d)">${esc(d.best.name)}</b> <b style="color:var(--gold)">${fmt(d.best.score)}</b></div></div>
-   <div>En çok oynanan tür: <b>${esc(d.genre)}</b><br>En yoğun ay: <b>${d.month}</b> (${d.monthN} oyun)</div>
+   <div class="bg">${d.best.image?`<img src="${esc(d.best.image)}" alt="">`:''}<div><small>${d.bestLabel}</small><br><b style="font:800 1.3rem var(--d)">${esc(d.best.name)}</b> <b style="color:var(--gold)">${fmt(d.best.score)}</b></div></div>
+   <div>En çok oynanan tür: <b>${esc(d.genre)}</b><br>${esc(d.peak)}</div>
    <ol>${d.top.map(p=>`<li>${esc(p.name)} <b style="color:var(--gold)">${fmt(p.score)}</b></li>`).join('')}</ol></div>`:'<span style="color:var(--mut)">Henüz veri yok.</span>';
 }
 $('yy').onchange=renderYear;
 $('ydl').onclick=async()=>{
-  const d=yearData($('yy').value);if(!d)return;
+  const d=yearData($('yy').value);if(!d)return;const U=s=>s.toLocaleUpperCase('tr');
   const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
   const gr=x.createLinearGradient(0,0,1080,1350);gr.addColorStop(0,'#4a2394');gr.addColorStop(1,'#12072a');x.fillStyle=gr;x.fillRect(0,0,1080,1350);
   const F='"Bricolage Grotesque",system-ui,sans-serif',T=(s,px,y,col,w=800,xx=80)=>{x.font=`${w} ${px}px ${F}`;x.fillStyle=col;x.fillText(s,xx,y)};
   const fit=(s,px,w)=>{x.font=`800 ${px}px ${F}`;if(x.measureText(s).width<=w)return s;while(s.length>1&&x.measureText(s+'…').width>w)s=s.slice(0,-1);return s+'…'};
-  T('OscoMatik · Oscoliat',44,110,'#ad9fd6');T(d.y+' ÖZETİ',120,230,'#f3eeff');
+  T('OscoMatik · Oscoliat',44,110,'#ad9fd6');T(fit(U(d.label)+' ÖZETİ',d.mon?84:120,920),d.mon?84:120,230,'#f3eeff');
   [['oyun',d.n],['ortalama puan',fmt(d.avg)],['bitirilen',d.done]].forEach(([l,v],i)=>{T(String(v),110,430,'#f4c430',800,80+i*330);T(l,32,480,'#ad9fd6',500,80+i*330)});
   const im=await new Promise(r=>{if(!d.best.image)return r(null);const i=new Image();i.crossOrigin='anonymous';i.onload=()=>r(i);i.onerror=()=>r(null);i.src=d.best.image});
-  T('YILIN EN YÜKSEK PUANLISI',32,580,'#ad9fd6',600);
+  T(U(d.bestLabel),32,580,'#ad9fd6',600);
   if(im)x.drawImage(im,80,610,400,187);
   const y0=im?850:650;
   T(fit(d.best.name,54,920),54,y0,'#f3eeff');T(fmt(d.best.score)+' / 10',90,y0+110,'#f4c430');
-  T('En çok oynanan tür: '+d.genre,36,y0+190,'#f3eeff',600);T(`En yoğun ay: ${d.month} (${d.monthN} oyun)`,36,y0+240,'#f3eeff',600);
+  T('En çok oynanan tür: '+d.genre,36,y0+190,'#f3eeff',600);T(d.peak,36,y0+240,'#f3eeff',600);
   d.top.forEach((p,i)=>T(`${i+1}. ${fit(p.name,38,760)}  ${fmt(p.score)}`,38,y0+320+i*55,i?'#ad9fd6':'#f4c430',600));
-  c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`oscomatik-${d.y}-ozet.png`;a.click()},'image/png');
+  c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`oscomatik-${d.k}-ozet.png`;a.click()},'image/png');
 };
 async function loadVideos(){try{const v=await api('/api/videos');$('vsec').hidden=!v.length;
-  $('vg').innerHTML=v.map(x=>`<a class="vc" href="${esc(x.url)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${esc(x.id)}/mqdefault.jpg" alt="" loading="lazy"><span>${esc(x.title)}</span><small>${new Date(x.published).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</small></a>`).join('');vcUpd()}catch{$('vsec').hidden=true}}
+  $('vg').innerHTML=v.map(x=>`<a class="vc" href="${esc(x.url)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${esc(x.id)}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span>${esc(x.title)}</span><small>${new Date(x.published).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</small></a>`).join('');vcUpd()}catch{$('vsec').hidden=true}}
 let lvMode='auto';
 async function loadLive(){try{const l=await api('/api/live');lvMode=l.mode;$('lv').hidden=!l.live;$('lvt').textContent=l.title?'Yayında: '+l.title:'Şimdi yayında';$('lvb').textContent='Rozet: '+({auto:'otomatik',on:'açık',off:'kapalı'}[l.mode])}catch{}}
 $('lvb').onclick=async()=>{await api('/api/live/override',{method:'POST',body:{mode:{auto:'on',on:'off',off:'auto'}[lvMode]}});loadLive()};
@@ -471,7 +521,17 @@ $('more').onclick=()=>{lim+=20;render()};
 $('sq').onkeydown=e=>{if(e.key==='Enter'){const b=$('res').querySelector('button');if(b)b.click()}};
 function openHash(){const m=location.hash.match(/^#oyun-(\d+)$/);if(!m)return;let r=$('oyun-'+m[1]);
   if(!r&&plays.some(p=>p.id==m[1])){lim=plays.length;render();r=$('oyun-'+m[1])}
-  if(r){r.classList.add('open');r.scrollIntoView({block:'center'})}}
+  if(r){r.classList.add('open');const b=r.querySelector('.rt');if(b)b.setAttribute('aria-expanded','true');r.scrollIntoView({block:'center'})}}
+async function loadAdm(){try{const a=await api('/api/admins');$('adl').innerHTML=a.map(x=>`<div class="li"><span>${esc(x.username)}</span><button class="link" type="button" data-id="${x.id}">Kaldır</button></div>`).join('')||'<small class="mut">Henüz ekip hesabı yok.</small>'}catch(e){$('mge').textContent=e.message}}
+$('mgb').onclick=()=>{$('mge').textContent='';$('mg').showModal();loadAdm()};
+$('mx').onclick=()=>$('mg').close();
+$('aad').onclick=async()=>{try{await api('/api/admins',{method:'POST',body:{username:$('anu').value,password:$('anp').value}});$('anu').value=$('anp').value='';$('mge').textContent='';loadAdm()}catch(e){$('mge').style.color='var(--bad)';$('mge').textContent=e.message}};
+$('adl').onclick=async e=>{const b=e.target.closest('button');if(b&&confirm('Bu hesap kaldırılsın mı?')){await api('/api/admins/'+b.dataset.id,{method:'DELETE'});loadAdm()}};
+$('rsb').onclick=()=>$('rsf').click();
+$('rsf').onchange=async()=>{const f=$('rsf').files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!confirm('Yedek geri yüklensin mi? Mevcut kayıtların üzerine yazılır, hiçbir şey silinmez.')){$('rsf').value='';return}
+    const r=await api('/api/restore',{method:'POST',body:d});$('mge').style.color='var(--cy)';$('mge').textContent=`Geri yüklendi: ${r.plays} oynanış, ${r.games} oyun, ${r.votes} oy.`;load()}
+  catch(e){$('mge').style.color='var(--bad)';$('mge').textContent=e.message}$('rsf').value=''};
 const STEAMIMG=id=>'https://cdn.cloudflare.steamstatic.com/steam/apps/'+id+'/header.jpg';
 const syncSt=()=>document.querySelectorAll('#sg button').forEach(b=>b.classList.toggle('on',b.dataset.v===$('stt').value));
 $('sg').onclick=e=>{const b=e.target.closest('button');if(b){$('stt').value=b.dataset.v;syncSt()}};
