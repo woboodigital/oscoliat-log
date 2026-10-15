@@ -109,9 +109,6 @@ main{max-width:1040px}
 .about{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}
 .about p{margin:0 0 12px}.tags{display:flex;gap:8px;flex-wrap:wrap}.tags span{border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:.88rem;color:var(--cy)}
 .about ol{margin:0;padding-left:20px;color:var(--mut)}.about li{margin:6px 0}.about li b{color:var(--tx);font-weight:600}
-.plat{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
-.plat a{background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:14px 16px;color:var(--tx);text-decoration:none;display:flex;flex-direction:column;gap:2px}
-.plat a b{font:700 1.1rem var(--d)}.plat a span{color:var(--mut);font-size:.9rem}.plat a:hover{border-color:var(--gold)}.plat a.kk{border-color:#53fc1888}.plat a.kk b{color:#53fc18}
 /* Kick yeşili */
 .soc a.k{background:#53fc18;color:#0a1a00;border-color:#53fc18}
 .live{background:#53fc1822;border-color:#53fc18;color:#e6ffd9}.live i{background:#53fc18}
@@ -152,6 +149,31 @@ html,body{overflow-x:hidden}
 #rn.roll{animation:shk .1s infinite}@keyframes shk{0%{transform:translate(-2px,1px) rotate(-1deg)}50%{transform:translate(2px,-1px) rotate(1deg)}100%{transform:translate(-1px,2px)}}
 #rn.land{text-shadow:0 0 50px #f4c43099}
 @media(prefers-reduced-motion:reduce){#rv::before,#rn.roll,#rv.on #ri,#rg.go,#rf.go{animation:none}}
+/* ---- Form bileşenleri ve kayıt penceresi ---- */
+:root{color-scheme:dark}
+label{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px #f4c43033}
+input::placeholder,textarea::placeholder{color:#8a7db3}
+textarea{resize:vertical;min-height:84px}
+input[type=date]{accent-color:var(--gold);min-height:42px}
+input[type=range]{-webkit-appearance:none;appearance:none;height:8px;padding:0;border:0;border-radius:99px;background:linear-gradient(90deg,var(--gold) var(--p,70%),var(--line) var(--p,70%));cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--gold);border:4px solid #fff;box-shadow:0 2px 10px #0008}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--gold);border:4px solid #fff}
+input[type=range]::-moz-range-track{background:transparent}
+dialog{max-width:560px}
+.dh{display:flex;justify-content:space-between;align-items:center}.dh h2{margin:0}.x{width:36px;height:36px;padding:0;border-radius:50%}
+.fld{margin-top:18px}.fld label{margin:0 0 6px}
+.sr{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:14px}.sr label{margin:0}
+.scr{display:flex;align-items:baseline;gap:6px;color:var(--mut)}.scr output{font:800 2.6rem/1 var(--d);color:var(--gold)}
+.tk{display:flex;justify-content:space-between;color:var(--mut);font-size:.78rem;margin-top:6px}
+.seg{display:flex;gap:6px;flex-wrap:wrap}.seg button{flex:1 1 auto;border-radius:99px;padding:8px 14px}.seg button.on{background:var(--gold);color:#241a00;border-color:var(--gold);font-weight:600}
+.tsg{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.tsg button{font-size:.8rem;padding:2px 10px;border-radius:99px;color:var(--cy)}
+.res{border:1px solid var(--line);border-radius:10px;margin-top:6px}.res:empty{display:none}
+.res button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;padding:8px 10px}
+.res button:last-child{border-bottom:0}.res button:hover{background:#ffffff0f}.res img{width:64px;height:30px;object-fit:cover;border-radius:4px;flex:none}
+.pk{display:flex;gap:12px;align-items:center;margin-top:14px;padding:10px;border:1px solid var(--gold);border-radius:12px;background:#f4c43010}
+.pk img{width:96px;border-radius:6px}.pk small{display:block;color:var(--mut)}.pk b{overflow-wrap:anywhere}
+.dact{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
 </style>
 </head>
 <body>
@@ -215,12 +237,6 @@ html,body{overflow-x:hidden}
       <ol><li><b>Oyun biter.</b> Yayında bir oyun tamamlanır.</li><li><b>Puan açılır.</b> Oscoliat oyuna 10 üzerinden puan verir, puan yayında açıklanır.</li><li><b>Defterde kalır.</b> Puan ve not burada saklanır, istatistikler kendiliğinden güncellenir.</li><li><b>Sen de oyla.</b> Bir oyuna tıklayıp "Sen kaç verirdin?" diyebilirsin.</li></ol>
     </div>
   </div>
-  <div class="plat">
-    <a class="kk" href="https://kick.com/oscoliat" target="_blank" rel="noopener"><b>Kick</b><span>Canlı yayın</span></a>
-    <a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener"><b>YouTube</b><span>Oyun videoları</span></a>
-    <a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener"><b>Discord</b><span>Topluluk sohbeti</span></a>
-    <a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener"><b>Instagram</b><span>Paylaşımlar</span></a>
-  </div>
 </section>
 
 <section class="sec">
@@ -250,17 +266,18 @@ html,body{overflow-x:hidden}
 </main>
 
 <dialog id="dl"><form method="dialog" id="fm" onsubmit="return false">
-  <h2 id="dt" style="margin-top:0">Oyun ekle</h2>
-  <div id="srch"><label for="sq">Steam'de ara</label><input id="sq" autocomplete="off"><div class="res" id="res"></div></div>
-  <div class="pick" id="pick"></div>
-  <div id="nmw" hidden><label for="nm">Oyun adı</label><input id="nm" maxlength="200"></div>
-  <label for="sc">Puan: <b id="scv">7</b> / 10</label><input id="sc" type="range" min="0" max="10" step="0.5" value="7">
-  <label for="dt2">Oynanma tarihi</label><input id="dt2" type="date">
-  <label for="stt">Durum</label><select id="stt"><option value="bitirdi">Bitirdi</option><option value="yarida">Yarıda bıraktı</option><option value="tekrar">Tekrar oynanacak</option></select>
-  <label for="tgs">Etiketler (virgülle ayır)</label><input id="tgs" placeholder="izleyici seçti, korku, bağış hedefi">
-  <label for="nt">Not</label><textarea id="nt" rows="3" maxlength="2000"></textarea>
+  <div class="dh"><h2 id="dt">Oyun ekle</h2><button type="button" class="x" id="cx2" aria-label="Kapat">✕</button></div>
+  <div id="srch" class="fld"><label for="sq">Steam'de ara</label><input id="sq" autocomplete="off" placeholder="Oyun adını yaz, Enter ile ilk sonucu seç"><div class="res" id="res"></div></div>
+  <div id="pick"></div>
+  <div class="fld" id="nmw" hidden><label for="nm">Oyun adı</label><input id="nm" maxlength="200"></div>
+  <div class="fld"><div class="sr"><label for="sc">Puan</label><div class="scr"><output id="scv">7</output><span>/ 10</span></div></div>
+    <input id="sc" type="range" min="0" max="10" step="0.5" value="7"><div class="tk"><span>0</span><span>5</span><span>10</span></div></div>
+  <div class="fld"><label>Durum</label><div class="seg" id="sg"><button type="button" data-v="bitirdi">Bitirdi</button><button type="button" data-v="yarida">Yarıda bıraktı</button><button type="button" data-v="tekrar">Tekrar oynanacak</button></div><input type="hidden" id="stt" value="bitirdi"></div>
+  <div class="fld"><label for="dt2">Oynanma tarihi</label><input id="dt2" type="date"></div>
+  <div class="fld"><label for="tgs">Etiketler</label><input id="tgs" placeholder="izleyici seçti, korku, bağış hedefi"><div class="tsg" id="tsg"></div></div>
+  <div class="fld"><label for="nt">Not</label><textarea id="nt" rows="3" maxlength="2000" placeholder="İstersen oyun hakkında bir not bırak"></textarea></div>
   <div id="err" role="alert"></div>
-  <div style="display:flex;gap:8px;justify-content:flex-end"><button type="button" id="cx">Vazgeç</button><button class="pri" id="sv">Kaydet ve puanı aç</button></div>
+  <div class="dact"><button type="button" id="cx">Vazgeç</button><button class="pri" id="sv">Kaydet ve puanı aç</button></div>
 </form></dialog>
 <dialog id="lg"><form onsubmit="return false"><h2 style="margin-top:0">Yayıncı girişi</h2>
   <label for="pw">Şifre</label><input id="pw" type="password" autocomplete="current-password">
@@ -284,7 +301,7 @@ async function load(){
   $('sum').innerHTML=s.total?`<div><b>${s.total}</b><span>oyun puanlandı</span></div><div><b>${fmt(s.average)}</b><span>ortalama puan</span></div>
    <div><b>${esc(tg(s.genres[0]?.name||'-'))}</b><span>en çok oynanan tür</span></div><div><b>${esc(s.best[0].name)}</b><span>en yüksek puan: ${fmt(s.best[0].score)}</span></div>`:'<span style="color:var(--mut)">Henüz oyun yok.</span>';
   const li=a=>a.length?a.map(x=>`<div class="li"><span>${esc(x.name)}</span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
-  $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);$('sw').hidden=s.total<6;
+  $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);$('sw').hidden=s.total<6;ALLTAGS=s.tags.map(t=>t.name);
   const dmx=Math.max(1,...s.distribution);$('dist').innerHTML=s.distribution.map((c,i)=>`<div><b>${c||''}</b><i style="height:${Math.round(c/dmx*80)}px"></i><span>${i}</span></div>`).join('');
   const vd=p.filter(x=>x.v_n>=3).map(x=>({...x,d:Math.abs(x.score-x.v_avg)})).sort((x,y)=>y.d-x.d).slice(0,3);
   $('vd').hidden=!vd.length;$('vdl').innerHTML=vd.map(x=>`<div class="li"><span>${esc(x.name)}</span><span>Oscoliat <b>${fmt(x.score)}</b> · izleyici <b>${fmt(x.v_avg)}</b> (${x.v_n} oy)</span></div>`).join('');
@@ -297,7 +314,7 @@ async function load(){
 }
 const voted=()=>{try{return JSON.parse(localStorage.getItem('voted')||'[]')}catch{return[]}};
 const markVoted=id=>{try{localStorage.setItem('voted',JSON.stringify([...voted(),id]))}catch{}};
-$('list').addEventListener('input',e=>{if(e.target.matches('.vt input'))e.target.nextElementSibling.textContent=fmt(+e.target.value)});
+$('list').addEventListener('input',e=>{if(e.target.matches('.vt input')){e.target.nextElementSibling.textContent=fmt(+e.target.value);e.target.style.setProperty('--p',e.target.value*10+'%')}});
 const STN={bitirdi:'Bitirdi',yarida:'Yarıda bıraktı',tekrar:'Tekrar oynanacak'};
 function renderLists(){
   $('lists').innerHTML=lists.map(l=>`<div><div class="lh"><h3>${esc(l.name)} (${l.items.length})</h3>${admin?`<button class="link" data-dl="${l.id}">Listeyi sil</button>`:''}</div>
@@ -344,17 +361,17 @@ $('pw').onkeydown=e=>{if(e.key==='Enter')$('lo').click()};
 function openDlg(p){
   $('err').textContent='';$('res').innerHTML='';$('sq').value='';
   $('dt').textContent=p?'Kaydı düzenle':'Oyun ekle';$('srch').hidden=!!p;$('nmw').hidden=!p;$('nm').value=p?p.name:'';
-  $('pick').textContent=p?p.name:'';pickName=p?p.name:'';
-  $('stt').value=p?p.status:'bitirdi';$('tgs').value=p?p.tags.join(', '):'';$('sc').value=p?p.score:7;$('scv').textContent=$('sc').value;
+  showPick(p?p.appid:0,p?p.name:'',p&&p.image);pickName=p?p.name:'';
+  $('stt').value=p?p.status:'bitirdi';syncSt();$('tgs').value=p?p.tags.join(', '):'';tagSug();$('sc').value=p?p.score:7;scUpd();
   $('dt2').value=p?p.played_at:new Date().toISOString().slice(0,10);$('nt').value=p?p.note:'';$('dl').showModal();if(!p)$('sq').focus();
 }
 $('add').onclick=()=>{editId=null;pickId=null;openDlg()};
 $('cx').onclick=()=>$('dl').close();
-$('sc').oninput=()=>$('scv').textContent=fmt(+$('sc').value);
+$('sc').oninput=()=>scUpd();
 let t;$('sq').oninput=()=>{clearTimeout(t);t=setTimeout(async()=>{
   try{const r=await api('/api/search?q='+encodeURIComponent($('sq').value));
-  $('res').innerHTML=r.length?r.map(x=>`<button type="button" data-id="${x.appid}" data-n="${esc(x.name)}">${esc(x.name)}</button>`).join(''):'<small style="color:var(--mut)">Sonuç yok. Steam listesini senkronladın mı?</small>'}catch(e){$('err').textContent=e.message}},250)};
-$('res').onclick=e=>{const b=e.target.closest('button');if(!b)return;pickId=+b.dataset.id;pickName=b.dataset.n;$('pick').textContent='Seçilen: '+pickName;$('res').innerHTML=''};
+  $('res').innerHTML=r.length?r.map(x=>`<button type="button" data-id="${x.appid}" data-n="${esc(x.name)}"><img src="https://cdn.cloudflare.steamstatic.com/steam/apps/${x.appid}/capsule_sm_120.jpg" alt="" loading="lazy" onerror="this.remove()"><span>${esc(x.name)}</span></button>`).join(''):'<small style="color:var(--mut)">Sonuç yok. Steam listesini senkronladın mı?</small>'}catch(e){$('err').textContent=e.message}},250)};
+$('res').onclick=e=>{const b=e.target.closest('button');if(!b)return;pickId=+b.dataset.id;pickName=b.dataset.n;showPick(pickId,pickName,STEAMIMG(pickId));$('res').innerHTML=''};
 $('sv').onclick=async()=>{
   if(!pickId)return $('err').textContent='Önce bir oyun seç.';
   const body={appid:pickId,name:editId?$('nm').value:pickName,score:+$('sc').value,played_at:$('dt2').value,note:$('nt').value,status:$('stt').value,tags:$('tgs').value.split(',')};
@@ -455,6 +472,16 @@ $('sq').onkeydown=e=>{if(e.key==='Enter'){const b=$('res').querySelector('button
 function openHash(){const m=location.hash.match(/^#oyun-(\d+)$/);if(!m)return;let r=$('oyun-'+m[1]);
   if(!r&&plays.some(p=>p.id==m[1])){lim=plays.length;render();r=$('oyun-'+m[1])}
   if(r){r.classList.add('open');r.scrollIntoView({block:'center'})}}
+const STEAMIMG=id=>'https://cdn.cloudflare.steamstatic.com/steam/apps/'+id+'/header.jpg';
+const syncSt=()=>document.querySelectorAll('#sg button').forEach(b=>b.classList.toggle('on',b.dataset.v===$('stt').value));
+$('sg').onclick=e=>{const b=e.target.closest('button');if(b){$('stt').value=b.dataset.v;syncSt()}};
+const scUpd=()=>{const v=+$('sc').value;$('scv').textContent=fmt(v);$('sc').style.setProperty('--p',v*10+'%')};
+const showPick=(id,name,img)=>{$('pick').innerHTML=id?`<div class="pk">${img?`<img src="${esc(img)}" alt="" onerror="this.remove()">`:''}<div><small>Seçilen oyun</small><b>${esc(name)}</b></div></div>`:''};
+$('cx2').onclick=()=>$('dl').close();
+let ALLTAGS=[];
+function tagSug(){const cur=$('tgs').value.split(',').map(t=>t.trim().toLowerCase());$('tsg').innerHTML=ALLTAGS.filter(t=>!cur.includes(t)).slice(0,8).map(t=>`<button type="button" data-t="${esc(t)}">+ ${esc(t)}</button>`).join('')}
+$('tsg').onclick=e=>{const b=e.target.closest('button');if(!b)return;const v=$('tgs').value.trim().replace(/,$/,'');$('tgs').value=(v?v+', ':'')+b.dataset.t;tagSug()};
+$('tgs').addEventListener('input',tagSug);
 load().then(openHash);
 </script>
 </body>
