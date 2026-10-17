@@ -130,6 +130,45 @@ app.get('/api/search', need, async (req, res) => {
   res.json([]);
 });
 
+// --- Steam'den zengin oyun bilgisi (oyun sayfası için) ---
+const plainText = t => String(t || '').replace(/<[^>]*>/g, ' ').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+const STEAM_IMG = u => /^https:\/\/[a-z0-9.-]+\.steamstatic\.com\//.test(String(u));
+const REV_TR = { 'Overwhelmingly Positive': 'Aşırı olumlu', 'Very Positive': 'Çok olumlu', 'Positive': 'Olumlu', 'Mostly Positive': 'Çoğunlukla olumlu', 'Mixed': 'Karışık',
+  'Mostly Negative': 'Çoğunlukla olumsuz', 'Negative': 'Olumsuz', 'Very Negative': 'Çok olumsuz', 'Overwhelmingly Negative': 'Aşırı olumsuz' };
+const KEEP_CATS = new Set([2, 1, 49, 36, 9, 38, 39, 24, 27, 28, 22]);
+function parseSteamInfo(x, summary) {
+  const info = { at: Date.now() };
+  if (x) {
+    info.about = plainText(x.short_description).slice(0, 700);
+    info.publishers = (x.publishers || []).map(plainText).filter(Boolean).slice(0, 3);
+    info.platforms = ['windows', 'mac', 'linux'].filter(k => x.platforms && x.platforms[k]);
+    info.metacritic = x.metacritic && Number(x.metacritic.score) ? Number(x.metacritic.score) : null;
+    info.free = !!x.is_free;
+    info.price = x.price_overview ? plainText(x.price_overview.final_formatted) : '';
+    info.tr = /turkish|türkçe/i.test(String(x.supported_languages || ''));
+    info.cats = (x.categories || []).filter(c => KEEP_CATS.has(Number(c.id))).map(c => plainText(c.description)).slice(0, 8);
+    info.shots = (x.screenshots || []).map(s => ({ t: s.path_thumbnail, f: s.path_full })).filter(s => STEAM_IMG(s.t) && STEAM_IMG(s.f)).slice(0, 6);
+  }
+  if (summary && summary.total_reviews > 0)
+    info.rev = { pct: Math.round(summary.total_positive / summary.total_reviews * 100), n: summary.total_reviews, d: REV_TR[summary.review_score_desc] || plainText(summary.review_score_desc) };
+  return info;
+}
+const infoJobs = {};
+function steamInfo(appid) {
+  if (infoJobs[appid]) return infoJobs[appid];
+  infoJobs[appid] = (async () => {
+    let x = null, summary = null;
+    try { const d = (await (await fetch(`https://store.steampowered.com/api/appdetails?appids=${appid}&l=turkish`)).json())[appid]; if (d && d.success) x = d.data; }
+    catch (e) { console.warn('Steam ayrıntısı alınamadı', appid, e.message); }
+    try { summary = (await (await fetch(`https://store.steampowered.com/appreviews/${appid}?json=1&language=all&purchase_type=all&num_per_page=0`)).json()).query_summary; }
+    catch (e) { /* yorum özeti isteğe bağlı */ }
+    const info = parseSteamInfo(x, summary);
+    if (x || summary) db.prepare('UPDATE games SET info=? WHERE appid=?').run(JSON.stringify(info), appid);
+    return info;
+  })().finally(() => { setTimeout(() => delete infoJobs[appid], 60000); });
+  return infoJobs[appid];
+}
+
 async function ensureGame(appid, fallbackName) {
   if (db.prepare('SELECT 1 FROM games WHERE appid=?').get(appid)) return;
   let g = { name: fallbackName, image: null, genres: [], developer: null, release: null };
@@ -144,6 +183,7 @@ async function ensureGame(appid, fallbackName) {
   } catch (e) { console.warn('appdetails alınamadı', appid, e.message); }
   db.prepare('INSERT OR IGNORE INTO games(appid,name,image,genres,developer,release) VALUES(?,?,?,?,?,?)')
     .run(appid, g.name, g.image, JSON.stringify(g.genres), g.developer, g.release);
+  steamInfo(appid).catch(() => {});
 }
 
 // --- Kayıtlar ---
@@ -326,14 +366,24 @@ app.post('/api/live/override', need, (req, res) => {
 });
 
 // --- Oyun sayfası verisi ---
-app.get('/api/games/:appid', (req, res) => {
+app.get('/api/games/:appid', async (req, res) => {
   const appid = parseInt(req.params.appid, 10);
-  const g = db.prepare('SELECT appid, name, image, genres, developer, release FROM games WHERE appid=?').get(appid);
-  const plays = g ? rows().filter(p => p.appid === appid).map(({ appid: _a, name, image, genres, developer, release, ...p }) => p) : [];
+  const g = db.prepare('SELECT appid, name, image, genres, developer, release, info FROM games WHERE appid=?').get(appid);
+  const all = rows();
+  const plays = g ? all.filter(p => p.appid === appid).map(({ appid: _a, name, image, genres, developer, release, ...p }) => p) : [];
   if (!g || !plays.length) return res.status(404).json({ error: 'Oyun bulunamadı' });
   const avg = +(plays.reduce((t, p) => t + p.score, 0) / plays.length).toFixed(1);
   const lists = db.prepare('SELECT l.name FROM list_items i JOIN lists l ON l.id=i.list_id WHERE i.appid=?').all(appid).map(x => x.name);
-  res.json({ game: { ...g, genres: JSON.parse(g.genres) }, plays, avg, lists });
+  let info = {};
+  try { info = g.info ? JSON.parse(g.info) : {}; } catch (e) { info = {}; }
+  if (!info.at) info = await Promise.race([steamInfo(appid), new Promise(r => setTimeout(() => r({}), 8000))]).catch(() => ({}));
+  else if (Date.now() - info.at > 7 * 864e5) steamInfo(appid).catch(() => {});
+  // Aynı türden, puan defterinde bulunan diğer oyunlar
+  const genres = JSON.parse(g.genres), by = {};
+  all.forEach(p => { if (p.appid !== appid) (by[p.appid] = by[p.appid] || { appid: p.appid, name: p.name, image: p.image, genres: p.genres, s: [] }).s.push(p.score); });
+  const similar = Object.values(by).map(o => ({ appid: o.appid, name: o.name, image: o.image, shared: o.genres.filter(x => genres.includes(x)).length, score: +(o.s.reduce((t, v) => t + v, 0) / o.s.length).toFixed(1) }))
+    .filter(o => o.shared > 0).sort((x, y) => y.shared - x.shared || y.score - x.score).slice(0, 4).map(({ shared, ...o }) => o);
+  res.json({ game: { appid: g.appid, name: g.name, image: g.image, developer: g.developer, release: g.release, genres }, info, plays, avg, lists, similar });
 });
 
 // --- Yedek: indir ve geri yükle (sadece yayıncı). Geri yükleme kayıtların üzerine yazar, hiçbir şeyi silmez ---
@@ -358,20 +408,56 @@ app.post('/api/restore', needOwner, (req, res) => {
     plays.forEach(p => { int(p.id); int(p.appid); sc(p.score); });
     votes.forEach(v => { int(v.id); int(v.play_id); sc(v.score); });
     lists.forEach(l => int(l.id)); items.forEach(i => { int(i.list_id); int(i.appid); });
-    const upG = db.prepare(`INSERT INTO games(appid,name,image,genres,developer,release) VALUES(?,?,?,?,?,?)
-      ON CONFLICT(appid) DO UPDATE SET name=excluded.name,image=excluded.image,genres=excluded.genres,developer=excluded.developer,release=excluded.release`);
+    const upG = db.prepare(`INSERT INTO games(appid,name,image,genres,developer,release,info) VALUES(?,?,?,?,?,?,?)
+      ON CONFLICT(appid) DO UPDATE SET name=excluded.name,image=excluded.image,genres=excluded.genres,developer=excluded.developer,release=excluded.release,info=excluded.info`);
     const upP = db.prepare(`INSERT INTO plays(id,appid,score,note,played_at,status,tags,video_url,created_at) VALUES(?,?,?,?,?,?,?,?,?)
       ON CONFLICT(id) DO UPDATE SET appid=excluded.appid,score=excluded.score,note=excluded.note,played_at=excluded.played_at,status=excluded.status,tags=excluded.tags,video_url=excluded.video_url`);
     const upV = db.prepare('INSERT OR IGNORE INTO votes(id,play_id,score,voter,ip,created_at) VALUES(?,?,?,?,?,?)');
     const upL = db.prepare('INSERT INTO lists(id,name) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name');
     const upI = db.prepare('INSERT OR IGNORE INTO list_items(list_id,appid) VALUES(?,?)');
-    games.forEach(g => upG.run(int(g.appid), str(g.name, 200), g.image ? str(g.image, 500) : null, js(g.genres), g.developer ? str(g.developer, 200) : null, g.release ? str(g.release, 50) : null));
+    games.forEach(g => upG.run(int(g.appid), str(g.name, 200), g.image ? str(g.image, 500) : null, js(g.genres), g.developer ? str(g.developer, 200) : null, g.release ? str(g.release, 50) : null, typeof g.info === 'string' ? g.info.slice(0, 20000) : ''));
     plays.forEach(p => upP.run(int(p.id), int(p.appid), sc(p.score), str(p.note), str(p.played_at, 10), STATUSES.includes(p.status) ? p.status : 'bitirdi', js(p.tags), str(p.video_url, 300), str(p.created_at, 30)));
     votes.forEach(v => upV.run(int(v.id), int(v.play_id), sc(v.score), str(v.voter, 100), str(v.ip, 100), str(v.created_at, 30)));
     lists.forEach(l => upL.run(int(l.id), str(l.name, 80)));
     items.forEach(i => upI.run(int(i.list_id), int(i.appid)));
     res.json({ ok: true, games: games.length, plays: plays.length, votes: votes.length, lists: lists.length });
   } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// --- Kick: son yayınlar (VOD). Resmî olmayan Kick adresleri denenir; olmazsa kayıtlardaki Kick bağlantılarından üretilir ---
+const kickHost = u => /^https:\/\/([a-z0-9-]+\.)?kick\.com\//i.test(String(u || ''));
+function parseKickVods(j) {
+  const arr = Array.isArray(j) ? j : (j && (j.data || j.videos || j.previous_livestreams)) || [];
+  return (Array.isArray(arr) ? arr : []).map(v => {
+    const ls = v.livestream || v.live_stream || v, vid = v.video || v;
+    const uuid = String(vid.uuid || v.uuid || '');
+    let thumb = (ls.thumbnail && (ls.thumbnail.src || ls.thumbnail)) || vid.thumb || '';
+    if (typeof thumb !== 'string' || !kickHost(thumb)) thumb = '';
+    const when = String(ls.start_time || ls.created_at || v.created_at || '').slice(0, 10);
+    return { id: uuid, title: plainText(ls.session_title || v.session_title || '').slice(0, 200), url: `https://kick.com/${KICK_SLUG}/videos/${uuid}`,
+      thumb, date: /^\d{4}-\d{2}-\d{2}$/.test(when) ? when : '', mins: Number(ls.duration) > 0 ? Math.round(Number(ls.duration) / 60000) : 0, views: Number(ls.views || v.views) || 0, source: 'kick' };
+  }).filter(x => /^[0-9a-f-]{20,}$/i.test(x.id) && x.title);
+}
+let kcache = { at: 0, items: [] };
+async function kickVods() {
+  if (Date.now() - kcache.at < 15 * 60000) return kcache.items;
+  kcache.at = Date.now();
+  for (const u of [`https://kick.com/api/v2/channels/${encodeURIComponent(KICK_SLUG)}/videos`, `https://kick.com/api/v2/channels/${encodeURIComponent(KICK_SLUG)}`]) {
+    try {
+      const r = await fetch(u, { headers: UA });
+      if (!r.ok) throw new Error('Kick ' + r.status);
+      const items = parseKickVods(await r.json());
+      if (items.length) { kcache.items = items; return items; }
+    } catch (e) { if (!kcache.warned) console.warn('Kick yayın listesi alınamadı:', e.message); }
+  }
+  kcache.warned = true; kcache.items = []; return [];
+}
+app.get('/api/streams', async (_, res) => {
+  const auto = await kickVods().catch(() => []);
+  const seen = new Set(auto.map(x => x.id));
+  const fromRecords = rows().filter(p => kickHost(p.video_url)).map(p => ({ id: 'r' + p.id, title: p.name, url: p.video_url, thumb: p.image || '', date: p.played_at, mins: 0, views: 0, score: p.score, source: 'kayit' }))
+    .filter(x => !seen.has((x.url.match(/videos\/([0-9a-f-]+)/i) || [])[1]));
+  res.json([...auto, ...fromRecords].slice(0, 12));
 });
 
 // --- İstatistik ---

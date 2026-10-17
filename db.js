@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS plays (
 for (const sql of [
   "ALTER TABLE plays ADD COLUMN status TEXT DEFAULT 'bitirdi'",
   "ALTER TABLE plays ADD COLUMN tags TEXT DEFAULT '[]'",
-  "ALTER TABLE plays ADD COLUMN video_url TEXT DEFAULT ''"
+  "ALTER TABLE plays ADD COLUMN video_url TEXT DEFAULT ''",
+  "ALTER TABLE games ADD COLUMN info TEXT DEFAULT ''"
 ]) { try { db.exec(sql); } catch (e) { /* kolon zaten var */ } }
 db.exec(`
 CREATE TABLE IF NOT EXISTS admins (
