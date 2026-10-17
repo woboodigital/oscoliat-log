@@ -130,9 +130,6 @@ svg.fl:nth-child(3n){color:var(--gold);opacity:.06}
 #rb{position:absolute;top:22px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut);font-size:.8rem}
 .lnk{grid-column:2/4;display:none}.row.open .lnk{display:block}
 .wide{grid-column:1/-1}
-.dist{display:flex;gap:6px;align-items:flex-end;height:130px}
-.dist div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%;font-size:.8rem;color:var(--mut)}
-.dist i{display:block;width:100%;background:linear-gradient(var(--gold),#b8860b);border-radius:4px 4px 0 0;min-height:2px}.dist b{color:var(--tx);font-weight:600}
 /* ---- Mobil taşma düzeltmeleri ---- */
 html,body{overflow-x:hidden}
 .bar{flex-wrap:wrap}.bar input{flex:1 1 220px;min-width:0}.bar select{flex:1 1 130px;min-width:0}
@@ -197,6 +194,15 @@ a.tc{display:block;text-decoration:none}
 .scw{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
 .tgl{width:34px;height:34px;padding:0;border-radius:50%;line-height:1;font-size:1.1rem;transition:transform .2s}.row.open .tgl{transform:rotate(180deg)}
 .lnk a.btnlink{color:var(--tx);padding:8px 14px}.lnk a.btnlink:hover{color:var(--tx)}
+/* ---- Özet kartları ve Kick yayınları ---- */
+.sumgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.sumgrid .yr{max-width:none}.sctl{margin:0 0 10px}.sctl select{flex:1 1 140px;max-width:240px}
+@media(max-width:820px){.sumgrid{grid-template-columns:1fr}}
+.kt{position:relative;line-height:0}.kt img,.kph{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.kph{background:linear-gradient(135deg,#1c3a10,#12072a)}
+.kb{position:absolute;left:8px;top:8px;background:#53fc18;color:#0a1a00;font:800 .7rem/1.5 var(--d);font-style:normal;letter-spacing:.08em;padding:1px 8px;border-radius:6px}
+.kd{position:absolute;right:8px;bottom:8px;background:#000b;color:#fff;font:600 .75rem/1.5 var(--b);font-style:normal;padding:0 7px;border-radius:6px}
+.kc:hover .kt img{border-color:#53fc18}
 </style>
 </head>
 <body>
@@ -215,7 +221,7 @@ a.tc{display:block;text-decoration:none}
 <div id="bg" aria-hidden="true"></div>
 <main id="icerik">
 <nav class="top">
-  <div class="r"><a class="brand" href="#puan">Osco<span>Matik</span></a><a class="link" href="#videolar">Videolar</a><a class="link" href="#hakkinda">Hakkında</a></div>
+  <div class="r"><a class="brand" href="#puan">Osco<span>Matik</span></a><a class="link" href="#videolar">Videolar</a><a class="link" href="#yayinlar">Yayınlar</a><a class="link" href="#hakkinda">Hakkında</a></div>
   <div class="r"><button class="link" id="lvb" hidden>Rozet: otomatik</button><button class="link" id="mgb" hidden>Yönetim</button><button class="link" id="adm">Yayıncı girişi</button><button class="pri" id="add" hidden>Oyun ekle</button></div>
 </nav>
 
@@ -254,6 +260,12 @@ a.tc{display:block;text-decoration:none}
   <div class="vg" id="vg" tabindex="0" role="region" aria-label="Son videolar"></div>
 </section>
 
+<section class="sec" id="ksec" hidden>
+  <div class="sh"><div><h2 id="yayinlar">Son yayınlar</h2><p>Kick'teki son yayın kayıtları.</p></div>
+    <div class="arr"><button id="kp" aria-label="Önceki yayınlar">‹</button><button id="kn" aria-label="Sonraki yayınlar">›</button></div></div>
+  <div class="vg" id="kg" tabindex="0" role="region" aria-label="Son yayınlar"></div>
+</section>
+
 <section class="sec" id="hakkinda">
   <div class="sh"><div><h2>Oscoliat hakkında</h2></div></div>
   <div class="about">
@@ -280,15 +292,16 @@ a.tc{display:block;text-decoration:none}
     <div class="panel" id="sw"><h3 class="pt">En düşük puanlılar</h3><div id="worst"></div></div>
     <div class="panel"><h3 class="pt">Türlere göre</h3><div id="gen"></div></div>
     <div class="panel"><h3 class="pt">Aylık oyun sayısı</h3><div id="mon"></div></div>
-    <div class="panel wide"><h3 class="pt">Puan dağılımı</h3><div class="dist" id="dist"></div></div>
     <div class="panel wide" id="vd" hidden><h3 class="pt">İzleyiciyle ayrıştığımız oyunlar</h3><div id="vdl"></div></div>
   </div>
 </section>
 
-<section class="sec">
-  <div class="sh"><div><h2>Yıllık özet</h2><p>Yıllık ve aylık, paylaşılabilir özet kartı.</p></div>
-    <div class="bar" style="margin:0"><select id="yy" aria-label="Dönem" style="max-width:220px"></select><button id="ydl" hidden>Görseli indir</button></div></div>
-  <div id="yc"></div>
+<section class="sec" id="ozet">
+  <div class="sh"><div><h2>Özet kartları</h2><p>Yıllık ve aylık, paylaşılabilir özet kartları. İndirdiğin görseli doğrudan paylaşabilirsin.</p></div></div>
+  <div class="sumgrid">
+    <div><div class="bar sctl"><select id="yy" aria-label="Yıl"></select><button id="ydl" hidden>Yıllık görseli indir</button></div><div id="yc"></div></div>
+    <div><div class="bar sctl"><select id="mm" aria-label="Ay"></select><button id="mdl" hidden>Aylık görseli indir</button></div><div id="mc"></div></div>
+  </div>
 </section>
 
 <footer>
@@ -346,7 +359,6 @@ async function load(){
    <div><b>${esc(tg(s.genres[0]?.name||'-'))}</b><span>en çok oynanan tür</span></div><div><b>${esc(s.best[0].name)}</b><span>en yüksek puan: ${fmt(s.best[0].score)}</span></div>`:'<span style="color:var(--mut)">Henüz oyun yok.</span>';
   const li=a=>a.length?a.map(x=>`<div class="li"><span><a class="gl" href="/oyun/${x.appid}">${esc(x.name)}</a></span><b>${fmt(x.score)}</b></div>`).join(''):'<span class="pick" style="color:var(--mut)">Veri yok</span>';
   $('best').innerHTML=li(s.best);$('worst').innerHTML=li(s.worst);$('sw').hidden=s.total<6;ALLTAGS=s.tags.map(t=>t.name);fillYears();
-  const dmx=Math.max(1,...s.distribution);$('dist').innerHTML=s.distribution.map((c,i)=>`<div><b>${c||''}</b><i style="height:${Math.round(c/dmx*80)}px"></i><span>${i}</span></div>`).join('');
   const vd=p.filter(x=>x.v_n>=3).map(x=>({...x,d:Math.abs(x.score-x.v_avg)})).sort((x,y)=>y.d-x.d).slice(0,3);
   $('vd').hidden=!vd.length;$('vdl').innerHTML=vd.map(x=>`<div class="li"><span><a class="gl" href="/oyun/${x.appid}">${esc(x.name)}</a></span><span>Oscoliat <b>${fmt(x.score)}</b> · izleyici <b>${fmt(x.v_avg)}</b> (${x.v_n} oy)</span></div>`).join('');
   const mx=Math.max(1,...s.genres.map(g=>g.count));
@@ -481,20 +493,22 @@ function yearData(k){
   return{k,label,mon,n:a.length,avg:+(a.reduce((s,p)=>s+p.score,0)/a.length).toFixed(1),best:top[0],top:top.slice(0,3),
     genre:ge?tg(ge[0]):'-',peak,done:a.filter(p=>p.status==='bitirdi').length,bestLabel:mon?'Ayın en yüksek puanlısı':'Yılın en yüksek puanlısı'};
 }
-function renderYear(){
-  const ys=[...new Set(plays.map(p=>p.played_at.slice(0,4)))].sort().reverse(),cur=$('yy').value;
-  $('yy').innerHTML=ys.map(y=>`<optgroup label="${y}"><option value="${y}">${y} tüm yıl</option>${[...new Set(plays.filter(p=>p.played_at.startsWith(y)).map(p=>p.played_at.slice(0,7)))].sort().reverse().map(m=>`<option value="${m}">${AY[+m.slice(5)-1]} ${y}</option>`).join('')}</optgroup>`).join('');
-  if(cur&&$('yy').querySelector(`option[value="${cur}"]`))$('yy').value=cur;
-  const d=yearData($('yy').value);$('ydl').hidden=!d;
-  $('yc').innerHTML=d?`<div class="yr"><h3>Oscoliat ${esc(d.label)} özeti</h3>
+const cardHtml=d=>`<div class="yr"><h3>Oscoliat ${esc(d.label)} özeti</h3>
    <div class="big"><div><b>${d.n}</b>oyun</div><div><b>${fmt(d.avg)}</b>ortalama puan</div><div><b>${d.done}</b>bitirilen</div></div>
    <div class="bg">${d.best.image?`<img src="${esc(d.best.image)}" alt="">`:''}<div><small>${d.bestLabel}</small><br><b style="font:800 1.3rem var(--d)">${esc(d.best.name)}</b> <b style="color:var(--gold)">${fmt(d.best.score)}</b></div></div>
    <div>En çok oynanan tür: <b>${esc(d.genre)}</b><br>${esc(d.peak)}</div>
-   <ol>${d.top.map(p=>`<li>${esc(p.name)} <b style="color:var(--gold)">${fmt(p.score)}</b></li>`).join('')}</ol></div>`:'<span style="color:var(--mut)">Henüz veri yok.</span>';
+   <ol>${d.top.map(p=>`<li>${esc(p.name)} <b style="color:var(--gold)">${fmt(p.score)}</b></li>`).join('')}</ol></div>`;
+function renderYear(){
+  const ys=[...new Set(plays.map(p=>p.played_at.slice(0,4)))].sort().reverse(),ms=[...new Set(plays.map(p=>p.played_at.slice(0,7)))].sort().reverse(),cy=$('yy').value,cm=$('mm').value;
+  $('yy').innerHTML=ys.map(y=>`<option value="${y}">${y} yılı</option>`).join('');
+  $('mm').innerHTML=ms.map(m=>`<option value="${m}">${AY[+m.slice(5)-1]} ${m.slice(0,4)}</option>`).join('');
+  if(ys.includes(cy))$('yy').value=cy;if(ms.includes(cm))$('mm').value=cm;
+  const y=yearData($('yy').value),m=yearData($('mm').value),none='<span style="color:var(--mut)">Henüz veri yok.</span>';
+  $('ydl').hidden=!y;$('mdl').hidden=!m;$('yc').innerHTML=y?cardHtml(y):none;$('mc').innerHTML=m?cardHtml(m):none;
 }
-$('yy').onchange=renderYear;
-$('ydl').onclick=async()=>{
-  const d=yearData($('yy').value);if(!d)return;const U=s=>s.toLocaleUpperCase('tr');
+$('yy').onchange=$('mm').onchange=renderYear;
+async function dlCard(k){
+  const d=yearData(k);if(!d)return;const U=s=>s.toLocaleUpperCase('tr');
   const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
   const gr=x.createLinearGradient(0,0,1080,1350);gr.addColorStop(0,'#4a2394');gr.addColorStop(1,'#12072a');x.fillStyle=gr;x.fillRect(0,0,1080,1350);
   const F='"Bricolage Grotesque",system-ui,sans-serif',T=(s,px,y,col,w=800,xx=80)=>{x.font=`${w} ${px}px ${F}`;x.fillStyle=col;x.fillText(s,xx,y)};
@@ -509,7 +523,8 @@ $('ydl').onclick=async()=>{
   T('En çok oynanan tür: '+d.genre,36,y0+190,'#f3eeff',600);T(d.peak,36,y0+240,'#f3eeff',600);
   d.top.forEach((p,i)=>T(`${i+1}. ${fit(p.name,38,760)}  ${fmt(p.score)}`,38,y0+320+i*55,i?'#ad9fd6':'#f4c430',600));
   c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`oscomatik-${d.k}-ozet.png`;a.click()},'image/png');
-};
+}
+$('ydl').onclick=()=>dlCard($('yy').value);$('mdl').onclick=()=>dlCard($('mm').value);
 async function loadVideos(){try{const v=await api('/api/videos');$('vsec').hidden=!v.length;
   $('vg').innerHTML=v.map(x=>`<a class="vc" href="${esc(x.url)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${esc(x.id)}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span>${esc(x.title)}</span><small>${new Date(x.published).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</small></a>`).join('');vcUpd()}catch{$('vsec').hidden=true}}
 let lvMode='auto';
@@ -519,7 +534,13 @@ const vcUpd=()=>{const g=$('vg'),can=g.scrollWidth>g.clientWidth+2;$('vp').hidde
 $('vp').onclick=()=>$('vg').scrollBy({left:-$('vg').clientWidth*.9,behavior:'smooth'});
 $('vn').onclick=()=>$('vg').scrollBy({left:$('vg').clientWidth*.9,behavior:'smooth'});
 $('vg').addEventListener('scroll',vcUpd);addEventListener('resize',vcUpd);
-loadVideos();loadLive();setInterval(loadLive,60000);
+const kUpd=()=>{const g=$('kg'),can=g.scrollWidth>g.clientWidth+2;$('kp').hidden=$('kn').hidden=!can;$('kp').disabled=g.scrollLeft<=2;$('kn').disabled=g.scrollLeft+g.clientWidth>=g.scrollWidth-2};
+$('kp').onclick=()=>$('kg').scrollBy({left:-$('kg').clientWidth*.9,behavior:'smooth'});
+$('kn').onclick=()=>$('kg').scrollBy({left:$('kg').clientWidth*.9,behavior:'smooth'});
+$('kg').addEventListener('scroll',kUpd);addEventListener('resize',kUpd);
+async function loadStreams(){try{const v=await api('/api/streams');$('ksec').hidden=!v.length;
+  $('kg').innerHTML=v.map(x=>`<a class="vc kc" href="${esc(x.url)}" target="_blank" rel="noopener"><div class="kt">${x.thumb?`<img src="${esc(x.thumb)}" alt="" loading="lazy" decoding="async" width="320" height="180">`:'<i class="kph"></i>'}<em class="kb">KICK</em>${x.mins?`<em class="kd">${x.mins>=60?Math.floor(x.mins/60)+' sa ':''}${x.mins%60} dk</em>`:''}</div><span>${esc(x.title)}</span><small>${[x.date&&new Date(x.date).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}),x.views?x.views.toLocaleString('tr-TR')+' izlenme':'',x.score!=null?'Puan '+fmt(x.score):''].filter(Boolean).join(' · ')}</small></a>`).join('');kUpd()}catch{$('ksec').hidden=true}}
+loadVideos();loadStreams();loadLive();setInterval(loadLive,60000);
 (function(){const ic=['pad','stick','headset','heart','alien','coin','trophy','dice','sword'],bg=$('bg'),NS='http://www.w3.org/2000/svg';
   for(let i=0;i<14;i++){const s=document.createElementNS(NS,'svg'),u=document.createElementNS(NS,'use'),z=34+(i*13)%34;s.setAttribute('class','fl');u.setAttribute('href','#i-'+ic[i%ic.length]);s.appendChild(u);
     s.style.cssText=`left:${(i*37+8)%96}%;top:${(i*53+10)%90}%;width:${z}px;height:${z}px;animation-duration:${16+(i*5)%14}s;animation-delay:-${(i*3)%16}s`;bg.appendChild(s)}

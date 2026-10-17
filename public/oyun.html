@@ -28,6 +28,20 @@
 .nt{white-space:pre-wrap;color:#e3dcf6;margin:10px 0}
 .vt{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
 .vr{display:flex;gap:10px;align-items:center;flex:1 1 280px}.vr label{white-space:nowrap}.vr b{color:var(--gold)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);background:#ffffff0a;border-radius:99px;padding:4px 12px;font-size:.88rem}
+.chip b{color:var(--gold)}.chip.good{border-color:#53fc1888}.chip.good b{color:#53fc18}
+.about{white-space:pre-line;color:#e3dcf6;margin:0}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 22px;margin:0}.facts dt{color:var(--mut)}.facts dd{margin:0;overflow-wrap:anywhere}
+.cmp{display:grid;grid-template-columns:130px 1fr auto;gap:8px 12px;align-items:center}
+.cmp .bar{height:10px;border-radius:99px;background:var(--line);overflow:hidden}.cmp .bar i{display:block;height:100%;border-radius:99px}
+.cmp small{color:var(--mut)}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}.shots img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:10px;border:1px solid var(--line);display:block}
+.shots a:hover img{border-color:var(--gold)}
+.sim{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.sim a{color:var(--tx);text-decoration:none;display:block;font-size:.92rem;line-height:1.3}.sim img{width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin-bottom:6px}
+.sim a:hover img{border-color:var(--gold)}.sim b{color:var(--gold)}
+@media(max-width:560px){.cmp{grid-template-columns:96px 1fr auto}.facts{grid-template-columns:1fr}.facts dt{margin-top:6px}}
 </style>
 </head>
 <body>
@@ -52,17 +66,35 @@ ${p.note?`<p class="nt">${esc(p.note)}</p>`:''}
 ${p.video_url?`<p><a class="btn" href="${esc(p.video_url)}" target="_blank" rel="noopener">▶ Yayın kaydını izle</a></p>`:''}
 <div class="vt"><span class="mut">${p.v_n?`İzleyici ortalaması <b>${fmt(p.v_avg)}</b> (${p.v_n} oy)`:'Henüz izleyici oyu yok'}</span>
 ${voted().includes(p.id)?'<span class="mut">Oyun kaydedildi, teşekkürler.</span>':`<span class="vr"><label>Sen kaç verirdin? <b>7</b></label><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><button type="button" data-v="${p.id}">Oy ver</button></span>`}</div></article>`;
+const PLAT={windows:'Windows',mac:'macOS',linux:'Linux'};
+const sec=(t,body)=>body?`<h2>${t}</h2>${body}`:'';
 async function main(){
   const id=+document.querySelector('meta[name=appid]').content;let d;
   try{const r=await fetch('/api/games/'+id);if(!r.ok)throw 0;d=await r.json()}
   catch{$('g').innerHTML='<h1>Oyun bulunamadı</h1><p class="mut">Bu oyun puan defterinde yok. <a href="/#puan">Tüm oyunlara dön</a></p>';return}
-  const g=d.game;
+  const g=d.game,i=d.info||{},rv=i.rev;
+  const vn=d.plays.reduce((s,p)=>s+p.v_n,0),va=vn?d.plays.reduce((s,p)=>s+(p.v_avg||0)*p.v_n,0)/vn:null;
+  const chips=[rv?`<span class="chip ${rv.pct>=70?'good':''}">Steam yorumları <b>${esc(rv.d)}</b> %${rv.pct}</span>`:'',
+    i.metacritic?`<span class="chip">Metacritic <b>${i.metacritic}</b></span>`:'',
+    i.free?'<span class="chip">Fiyat <b>Ücretsiz</b></span>':(i.price?`<span class="chip">Fiyat <b>${esc(i.price)}</b></span>`:''),
+    i.tr===true?'<span class="chip good">Türkçe dil desteği <b>Var</b></span>':(i.tr===false?'<span class="chip">Türkçe dil desteği <b>Yok</b></span>':'')].join('');
+  const facts=[['Çıkış tarihi',g.release],['Geliştirici',g.developer],['Yayıncı',(i.publishers||[]).join(', ')],['Tür',g.genres.map(tg).join(', ')],
+    ['Platform',(i.platforms||[]).map(p=>PLAT[p]).join(', ')],['Steam yorumları',rv?`${rv.d} (%${rv.pct} olumlu, ${rv.n.toLocaleString('tr-TR')} yorum)`:'']].filter(x=>x[1]);
+  const bars=[['Oscoliat',d.avg,`${d.plays.length} oynanış`,'var(--gold)'],va!=null?['İzleyiciler',+va.toFixed(1),`${vn} oy`,'var(--cy)']:null,
+    rv?['Steam yorumları',+(rv.pct/10).toFixed(1),`%${rv.pct} olumlu`,'#53fc18']:null].filter(Boolean);
   $('g').innerHTML=`<section class="gh">${g.image?`<img class="cv" src="${esc(g.image)}" alt="${esc(g.name)} kapak görseli" width="460" height="215">`:''}
-  <div><h1>${esc(g.name)}</h1><p class="mut">${[g.developer,g.release,g.genres.map(tg).join(', ')].filter(Boolean).map(esc).join(' · ')}</p>
-  <div class="avg"><b>${fmt(d.avg)}</b><span class="mut">/ 10 · ${d.plays.length} oynanış</span></div>
+  <div><h1>${esc(g.name)}</h1><p class="mut">${[g.developer,g.release].filter(Boolean).map(esc).join(' · ')}</p>
+  <div class="avg"><b>${fmt(d.avg)}</b><span class="mut">/ 10 · Oscoliat'ın puanı</span></div>
   <div class="act"><a class="btn" href="https://store.steampowered.com/app/${id}" target="_blank" rel="noopener">Steam'de gör</a><button id="cp" type="button">Bağlantıyı kopyala</button></div></div></section>
+  ${chips?`<div class="chips">${chips}</div>`:''}
+  ${sec('Oyun hakkında',(i.about?`<p class="about">${esc(i.about)}</p>`:'')+((i.cats||[]).length?`<div class="tags" style="margin-top:12px">${i.cats.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`:''))}
+  ${sec('Bilgiler',facts.length?`<div class="panel"><dl class="facts">${facts.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`:'')}
+  ${bars.length>1?sec('Puan karşılaştırması',`<div class="panel cmp">${bars.map(([n,v,s,c])=>`<span>${n}</span><div class="bar" role="img" aria-label="${n}: 10 üzerinden ${fmt(v)}"><i style="width:${v*10}%;background:${c}"></i></div><span><b>${fmt(v)}</b> <small>${s}</small></span>`).join('')}</div>`):''}
+  ${sec('Ekran görüntüleri',(i.shots||[]).length?`<div class="shots">${i.shots.map(s=>`<a href="${esc(s.f)}" target="_blank" rel="noopener"><img src="${esc(s.t)}" alt="${esc(g.name)} ekran görüntüsü" loading="lazy" decoding="async" width="300" height="169"></a>`).join('')}</div>`:'')}
   <h2>Oynanışlar</h2><div id="pl">${d.plays.map(card).join('')}</div>
+  ${sec('Aynı türden diğer oyunlar',(d.similar||[]).length?`<div class="sim">${d.similar.map(o=>`<a href="/oyun/${o.appid}">${o.image?`<img src="${esc(o.image)}" alt="" loading="lazy" decoding="async" width="230" height="108">`:''}${esc(o.name)} <b>${fmt(o.score)}</b></a>`).join('')}</div>`:'')}
   ${d.lists.length?`<h2>Listeler</h2><div class="tags">${d.lists.map(l=>`<span>${esc(l)}</span>`).join('')}</div>`:''}`;
+  if(i.about)document.querySelector('meta[name=description]').content=`${g.name}: ${i.about.slice(0,150)}`;
 }
 document.addEventListener('input',e=>{if(e.target.matches('.vr input')){const v=+e.target.value;e.target.style.setProperty('--p',v*10+'%');e.target.parentNode.querySelector('b').textContent=fmt(v)}});
 document.addEventListener('click',async e=>{
