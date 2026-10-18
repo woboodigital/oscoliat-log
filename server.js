@@ -23,14 +23,15 @@ app.get('/healthz', (_, res) => res.type('text').send('ok'));
 const eh = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 // Sayfa dosyası önce public/ içinde, bulunamazsa ana klasörde aranır (yanlış klasöre yüklenmiş olsa da çalışsın)
 const findFile = name => [path.join(__dirname, 'public', name), path.join(__dirname, name)].find(p => fs.existsSync(p));
+const originOf = req => `${req.protocol}://${String(req.get('host') || '').replace(/[^a-zA-Z0-9.:-]/g, '')}`;
 function sendPage(req, res, file, vars = {}, status = 200) {
   const f = findFile(file);
   if (!f) { console.error('Sayfa dosyası bulunamadı:', file); return res.status(500).type('text').send(`Sayfa dosyası bulunamadı: ${file}. Dosya GitHub deposunda "public" klasörüne yüklenmeli.`); }
   fs.readFile(f, 'utf8', (e, t) => {
     if (e) return res.status(500).type('text').send('Sayfa okunamadı');
     const host = String(req.get('host') || '').replace(/[^a-zA-Z0-9.:-]/g, '');
-    const origin = `${req.protocol}://${host}`, all = { ORIGIN: origin, IMG: origin + '/logo.webp', ...vars };
-    res.status(status).set('Cache-Control', 'no-cache').type('html').send(t.replace(/__([A-Z_]+)__/g, (m, k) => (k in all ? eh(all[k]) : m)));
+    const origin = `${req.protocol}://${host}`, all = { ORIGIN: origin, IMG: origin + '/logo.webp', ROBOTS: 'index,follow', RAW_JSONLD: '', ...vars };
+    res.status(status).set('Cache-Control', 'no-cache').type('html').send(t.replace(/__([A-Z_]+)__/g, (m, k) => (k in all ? (k.startsWith('RAW_') ? all[k] : eh(all[k])) : m)));
   });
 }
 app.get('/site.css', (req, res) => { const f = findFile('site.css'); return f ? res.type('css').sendFile(f) : res.status(404).end(); });
@@ -45,12 +46,30 @@ app.get(['/gizlilik', '/gizlilik.html'], (req, res) => sendPage(req, res, 'gizli
 app.get(['/cerez', '/cerez.html'], (req, res) => sendPage(req, res, 'cerez.html', LEGAL()));
 app.get(['/oyun/:appid', '/oyun.html'], (req, res) => {
   const appid = parseInt(req.params.appid, 10);
-  const g = appid && db.prepare('SELECT name, image FROM games WHERE appid=?').get(appid);
-  const st = g && db.prepare('SELECT ROUND(AVG(score),1) AS a, COUNT(*) AS n FROM plays WHERE appid=?').get(appid);
-  if (!g || !st.n) return sendPage(req, res, 'oyun.html', { TITLE: 'Oyun bulunamadı · OscoMatik', DESC: 'Bu oyun puan defterinde yok.', APPID: '0' }, 404);
+  const g = appid && db.prepare('SELECT name, image, genres, developer FROM games WHERE appid=?').get(appid);
+  const st = g && db.prepare('SELECT ROUND(AVG(score),1) AS a, COUNT(*) AS n FROM plays WHERE appid=? AND deleted_at IS NULL').get(appid);
+  if (!g || !st.n) return sendPage(req, res, 'oyun.html', { TITLE: 'Oyun bulunamadı · OscoMatik', DESC: 'Bu oyun puan defterinde yok.', APPID: '0', ROBOTS: 'noindex' }, 404);
+  const o = originOf(req);
   const v = { TITLE: `${g.name} · OscoMatik`, DESC: `Oscoliat'ın puanı: ${st.a} / 10 (${st.n} oynanış)`, APPID: String(appid) };
   if (g.image) v.IMG = g.image;
+  const ld = { '@context': 'https://schema.org', '@type': 'Review', url: `${o}/oyun/${appid}`,
+    itemReviewed: { '@type': 'VideoGame', name: g.name, image: g.image || undefined, genre: JSON.parse(g.genres || '[]'), author: g.developer ? { '@type': 'Organization', name: g.developer } : undefined },
+    author: { '@type': 'Person', name: 'Oscoliat' }, publisher: { '@type': 'Organization', name: 'OscoMatik' },
+    reviewRating: { '@type': 'Rating', ratingValue: st.a, bestRating: 10, worstRating: 0 } };
+  v.RAW_JSONLD = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
   sendPage(req, res, 'oyun.html', v);
+});
+app.get(['/kosullar', '/kosullar.html'], (req, res) => sendPage(req, res, 'kosullar.html', LEGAL()));
+app.get('/son', (req, res) => {
+  const r = db.prepare('SELECT appid FROM plays WHERE deleted_at IS NULL ORDER BY played_at DESC, id DESC LIMIT 1').get();
+  res.redirect(302, r ? `/oyun/${r.appid}` : '/');
+});
+app.get('/robots.txt', (req, res) => res.type('text').send(`User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${originOf(req)}/sitemap.xml\n`));
+app.get('/sitemap.xml', (req, res) => {
+  const o = originOf(req);
+  const games = db.prepare('SELECT appid, MAX(played_at) AS d FROM plays WHERE deleted_at IS NULL GROUP BY appid ORDER BY d DESC').all();
+  const u = (p, d) => `<url><loc>${o}${p}</loc>${d && /^\d{4}-\d{2}-\d{2}$/.test(d) ? `<lastmod>${d}</lastmod>` : ''}</url>`;
+  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[u('/', games[0] && games[0].d), u('/gizlilik'), u('/cerez'), u('/kosullar'), ...games.map(g => u('/oyun/' + g.appid, g.d))].join('\n')}\n</urlset>\n`);
 });
 app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (r, f) => { if (f.endsWith('.webp')) r.setHeader('Cache-Control', 'public, max-age=604800'); }
@@ -191,6 +210,7 @@ const rows = () => db.prepare(`SELECT p.id, p.appid, p.score, p.note, p.played_a
   (SELECT ROUND(AVG(score),1) FROM votes WHERE play_id=p.id) AS v_avg,
   (SELECT COUNT(*) FROM votes WHERE play_id=p.id) AS v_n, g.name, g.image,
   p.video_url, g.genres, g.developer, g.release FROM plays p JOIN games g USING(appid)
+  WHERE p.deleted_at IS NULL
   ORDER BY p.played_at DESC, p.id DESC`).all().map(r => ({ ...r, genres: JSON.parse(r.genres), tags: JSON.parse(r.tags || '[]') }));
 const STATUSES = ['bitirdi', 'yarida', 'tekrar'];
 app.get('/api/plays', (_, res) => res.json(rows()));
@@ -212,20 +232,35 @@ app.post('/api/overlay/show', need, (req, res) => {
 
 // --- İzleyici oyu: çerez başına 1 oy, aynı ağdan (IP) en fazla 3 oy ---
 const hits = {};
-app.post('/api/plays/:id/vote', (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  if (!db.prepare('SELECT 1 FROM plays WHERE id=?').get(id)) return res.status(404).json({ error: 'Kayıt yok' });
-  const score = Math.round(Number(req.body.score) * 2) / 2;
-  if (!(score >= 0 && score <= 10)) return res.status(400).json({ error: 'Puan 0-10 arası olmalı' });
-  const now = Date.now(); hits[req.ip] = (hits[req.ip] || []).filter(t => now - t < 60000);
-  if (hits[req.ip].length >= 20) return res.status(429).json({ error: 'Çok hızlı, biraz bekle' });
-  hits[req.ip].push(now);
+const rateOk = req => { const now = Date.now(); hits[req.ip] = (hits[req.ip] || []).filter(t => now - t < 60000); if (hits[req.ip].length >= 20) return false; hits[req.ip].push(now); return true; };
+function visitor(req, res) {
   let vid = ((req.headers.cookie || '').match(/(?:^|; )vid=([a-f0-9]{32})/) || [])[1];
   if (!vid) {
     vid = crypto.randomBytes(16).toString('hex');
     res.setHeader('Set-Cookie', `vid=${vid}; HttpOnly; SameSite=Lax; Path=/; Max-Age=31536000${SECURE}`);
   }
-  const voter = sign('v' + vid), ip = sign('i' + req.ip);
+  return { voter: sign('v' + vid), ip: sign('i' + req.ip) };
+}
+// Cloudflare Turnstile (isteğe bağlı): TURNSTILE_SITE_KEY ve TURNSTILE_SECRET tanımlıysa oy verirken bot doğrulaması istenir
+async function captchaOk(req) {
+  const secret = process.env.TURNSTILE_SECRET;
+  if (!secret) return true;
+  try {
+    const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: new URLSearchParams({ secret, response: String(req.body.cf || ''), remoteip: req.ip }) });
+    return !!(await r.json()).success;
+  } catch (e) { return false; }
+}
+const NOADMIN = 'Yayıncı ve ekip üyeleri izleyici oyu veremez';
+app.get('/api/config', (_, res) => res.json({ turnstile: process.env.TURNSTILE_SITE_KEY && process.env.TURNSTILE_SECRET ? process.env.TURNSTILE_SITE_KEY : null }));
+app.post('/api/plays/:id/vote', async (req, res) => {
+  if (who(req)) return res.status(403).json({ error: NOADMIN });
+  const id = parseInt(req.params.id, 10);
+  if (!db.prepare('SELECT 1 FROM plays WHERE id=? AND deleted_at IS NULL').get(id)) return res.status(404).json({ error: 'Kayıt yok' });
+  const score = Math.round(Number(req.body.score) * 2) / 2;
+  if (!(score >= 0 && score <= 10)) return res.status(400).json({ error: 'Puan 0-10 arası olmalı' });
+  if (!rateOk(req)) return res.status(429).json({ error: 'Çok hızlı, biraz bekle' });
+  if (!(await captchaOk(req))) return res.status(400).json({ error: 'Bot doğrulaması başarısız, sayfayı yenileyip tekrar dene' });
+  const { voter, ip } = visitor(req, res);
   if (db.prepare('SELECT 1 FROM votes WHERE play_id=? AND voter=?').get(id, voter)) return res.status(409).json({ error: 'Bu oyuna zaten oy verdin' });
   if (db.prepare('SELECT COUNT(*) n FROM votes WHERE play_id=? AND ip=?').get(id, ip).n >= 3) return res.status(429).json({ error: 'Bu ağdan çok fazla oy verildi' });
   db.prepare('INSERT INTO votes(play_id,score,voter,ip) VALUES(?,?,?,?)').run(id, score, voter, ip);
@@ -267,7 +302,9 @@ app.post('/api/plays', need, async (req, res) => {
     await ensureGame(appid, (a && a.name) || String(req.body.name || 'Bilinmeyen oyun').slice(0, 200));
     const r = db.prepare('INSERT INTO plays(appid,score,note,played_at,status,tags,video_url) VALUES(?,?,?,?,?,?,?)').run(appid, p.score, p.note, p.day, p.status, p.tags, p.video);
     showOverlay(r.lastInsertRowid);
-    res.json(play1(r.lastInsertRowid));
+    const row = play1(r.lastInsertRowid);
+    notifyPlay(req, row);
+    res.json(row);
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 app.put('/api/plays/:id', need, (req, res) => {
@@ -280,14 +317,19 @@ app.put('/api/plays/:id', need, (req, res) => {
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 app.delete('/api/plays/:id', needOwner, (req, res) => {
-  db.prepare('DELETE FROM votes WHERE play_id=?').run(req.params.id);
-  db.prepare('DELETE FROM plays WHERE id=?').run(req.params.id); res.json({ ok: true });
+  db.prepare("UPDATE plays SET deleted_at=datetime('now') WHERE id=? AND deleted_at IS NULL").run(req.params.id); res.json({ ok: true });
 });
+function purgePlay(id) { db.prepare('DELETE FROM votes WHERE play_id=?').run(id); db.prepare('DELETE FROM plays WHERE id=? AND deleted_at IS NOT NULL').run(id); }
+function purgeOld() { db.prepare("SELECT id FROM plays WHERE deleted_at IS NOT NULL AND deleted_at < datetime('now','-30 days')").all().forEach(r => purgePlay(r.id)); }
+purgeOld(); setInterval(purgeOld, 6 * 3600e3);
+app.get('/api/trash', needOwner, (_, res) => res.json(db.prepare('SELECT p.id, p.score, p.played_at, p.deleted_at, g.name FROM plays p JOIN games g USING(appid) WHERE p.deleted_at IS NOT NULL ORDER BY p.deleted_at DESC').all()));
+app.post('/api/trash/:id/restore', needOwner, (req, res) => { db.prepare('UPDATE plays SET deleted_at=NULL WHERE id=?').run(req.params.id); res.json({ ok: true }); });
+app.delete('/api/trash/:id', needOwner, (req, res) => { purgePlay(req.params.id); res.json({ ok: true }); });
 
 // --- Listeler ---
 const getLists = () => db.prepare('SELECT id, name FROM lists ORDER BY id').all().map(l => ({ ...l,
   items: db.prepare(`SELECT g.appid, g.name, g.image,
-    (SELECT ROUND(AVG(score),1) FROM plays WHERE appid=g.appid) AS score
+    (SELECT ROUND(AVG(score),1) FROM plays WHERE appid=g.appid AND deleted_at IS NULL) AS score
     FROM list_items i JOIN games g USING(appid) WHERE i.list_id=?`).all(l.id) }));
 app.get('/api/lists', (_, res) => res.json(getLists()));
 app.post('/api/lists', need, (req, res) => {
@@ -321,7 +363,7 @@ app.get('/api/videos', async (_, res) => {
       const items = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map(m => {
         const e = m[1], g = re => (e.match(re) || [])[1] || '';
         const id = g(/<yt:videoId>([^<]+)</), href = g(/<link rel="alternate" href="([^"]+)"/);
-        return { id, title: unxml(g(/<title>([^<]*)</)), published: g(/<published>([^<]+)</),
+        return { id, title: unxml(g(/<title>([^<]*)</)), published: g(/<published>([^<]+)</), views: Number(g(/<media:statistics views="(\d+)"/)) || 0,
           url: href.startsWith('https://www.youtube.com/') ? href : `https://www.youtube.com/watch?v=${id}` };
       }).filter(v => /^[\w-]{6,20}$/.test(v.id)).slice(0, 12);
       vcache = { at: Date.now(), items };
@@ -387,11 +429,16 @@ app.get('/api/games/:appid', async (req, res) => {
 });
 
 // --- Yedek: indir ve geri yükle (sadece yayıncı). Geri yükleme kayıtların üzerine yazar, hiçbir şeyi silmez ---
-app.get('/api/backup', needOwner, (_, res) => {
+function backupData(safe) {
   const all = t => db.prepare(`SELECT * FROM ${t}`).all();
+  const d = { app: 'oscomatik', version: 1, exported_at: new Date().toISOString(), games: all('games'), plays: all('plays'), votes: all('votes'),
+    lists: all('lists'), list_items: all('list_items'), polls: all('polls'), poll_options: all('poll_options'), poll_votes: all('poll_votes') };
+  if (safe) { d.votes = d.votes.map(({ voter, ip, ...v }) => v); d.poll_votes = d.poll_votes.map(({ voter, ip, ...v }) => v); }
+  return d;
+}
+app.get('/api/backup', needOwner, (_, res) => {
   res.set({ 'Content-Type': 'application/json; charset=utf-8', 'Content-Disposition': `attachment; filename="oscomatik-yedek-${new Date().toISOString().slice(0, 10)}.json"` });
-  res.send(JSON.stringify({ app: 'oscomatik', version: 1, exported_at: new Date().toISOString(), games: all('games'), plays: all('plays'),
-    votes: all('votes'), lists: all('lists'), list_items: all('list_items') }));
+  res.send(JSON.stringify(backupData(false)));
 });
 app.post('/api/restore', needOwner, (req, res) => {
   const d = req.body;
@@ -399,6 +446,7 @@ app.post('/api/restore', needOwner, (req, res) => {
     if (!d || d.app !== 'oscomatik' || d.version !== 1) throw new Error('Bu dosya bir OscoMatik yedeği değil');
     const arr = k => { if (!Array.isArray(d[k])) throw new Error('Yedek eksik: ' + k); return d[k]; };
     const games = arr('games'), plays = arr('plays'), votes = arr('votes'), lists = arr('lists'), items = arr('list_items');
+    const polls = d.polls || [], popts = d.poll_options || [], pvotes = d.poll_votes || [];
     const int = v => { const n = Number(v); if (!Number.isInteger(n)) throw new Error('Yedekte geçersiz sayı'); return n; };
     const sc = v => { const n = Number(v); if (!(n >= 0 && n <= 10)) throw new Error('Yedekte geçersiz puan'); return n; };
     const str = (v, m = 2000) => String(v ?? '').slice(0, m);
@@ -408,19 +456,28 @@ app.post('/api/restore', needOwner, (req, res) => {
     plays.forEach(p => { int(p.id); int(p.appid); sc(p.score); });
     votes.forEach(v => { int(v.id); int(v.play_id); sc(v.score); });
     lists.forEach(l => int(l.id)); items.forEach(i => { int(i.list_id); int(i.appid); });
+    polls.forEach(p => int(p.id)); popts.forEach(o => { int(o.id); int(o.poll_id); }); pvotes.forEach(v => { int(v.poll_id); int(v.option_id); });
     const upG = db.prepare(`INSERT INTO games(appid,name,image,genres,developer,release,info) VALUES(?,?,?,?,?,?,?)
       ON CONFLICT(appid) DO UPDATE SET name=excluded.name,image=excluded.image,genres=excluded.genres,developer=excluded.developer,release=excluded.release,info=excluded.info`);
-    const upP = db.prepare(`INSERT INTO plays(id,appid,score,note,played_at,status,tags,video_url,created_at) VALUES(?,?,?,?,?,?,?,?,?)
-      ON CONFLICT(id) DO UPDATE SET appid=excluded.appid,score=excluded.score,note=excluded.note,played_at=excluded.played_at,status=excluded.status,tags=excluded.tags,video_url=excluded.video_url`);
+    const upP = db.prepare(`INSERT INTO plays(id,appid,score,note,played_at,status,tags,video_url,created_at,deleted_at) VALUES(?,?,?,?,?,?,?,?,?,?)
+      ON CONFLICT(id) DO UPDATE SET appid=excluded.appid,score=excluded.score,note=excluded.note,played_at=excluded.played_at,status=excluded.status,tags=excluded.tags,video_url=excluded.video_url,deleted_at=excluded.deleted_at`);
     const upV = db.prepare('INSERT OR IGNORE INTO votes(id,play_id,score,voter,ip,created_at) VALUES(?,?,?,?,?,?)');
     const upL = db.prepare('INSERT INTO lists(id,name) VALUES(?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name');
     const upI = db.prepare('INSERT OR IGNORE INTO list_items(list_id,appid) VALUES(?,?)');
     games.forEach(g => upG.run(int(g.appid), str(g.name, 200), g.image ? str(g.image, 500) : null, js(g.genres), g.developer ? str(g.developer, 200) : null, g.release ? str(g.release, 50) : null, typeof g.info === 'string' ? g.info.slice(0, 20000) : ''));
-    plays.forEach(p => upP.run(int(p.id), int(p.appid), sc(p.score), str(p.note), str(p.played_at, 10), STATUSES.includes(p.status) ? p.status : 'bitirdi', js(p.tags), str(p.video_url, 300), str(p.created_at, 30)));
-    votes.forEach(v => upV.run(int(v.id), int(v.play_id), sc(v.score), str(v.voter, 100), str(v.ip, 100), str(v.created_at, 30)));
+    plays.forEach(p => upP.run(int(p.id), int(p.appid), sc(p.score), str(p.note), str(p.played_at, 10), STATUSES.includes(p.status) ? p.status : 'bitirdi', js(p.tags), str(p.video_url, 300), str(p.created_at, 30), p.deleted_at ? str(p.deleted_at, 30) : null));
+    const rnd = () => crypto.randomBytes(8).toString('hex');
+    votes.forEach(v => upV.run(int(v.id), int(v.play_id), sc(v.score), v.voter ? str(v.voter, 100) : rnd(), str(v.ip, 100), str(v.created_at, 30)));
     lists.forEach(l => upL.run(int(l.id), str(l.name, 80)));
     items.forEach(i => upI.run(int(i.list_id), int(i.appid)));
-    res.json({ ok: true, games: games.length, plays: plays.length, votes: votes.length, lists: lists.length });
+    const upPo = db.prepare(`INSERT INTO polls(id,title,status,closes_at,winner_id,created_at,closed_at) VALUES(?,?,?,?,?,?,?)
+      ON CONFLICT(id) DO UPDATE SET title=excluded.title,status=excluded.status,closes_at=excluded.closes_at,winner_id=excluded.winner_id,closed_at=excluded.closed_at`);
+    const upOp = db.prepare('INSERT INTO poll_options(id,poll_id,name,appid,image) VALUES(?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,appid=excluded.appid,image=excluded.image');
+    const upPv = db.prepare('INSERT OR IGNORE INTO poll_votes(poll_id,option_id,voter,ip,created_at) VALUES(?,?,?,?,?)');
+    polls.forEach(p => upPo.run(int(p.id), str(p.title, 120), p.status === 'closed' ? 'closed' : 'open', p.closes_at ? str(p.closes_at, 30) : null, p.winner_id ? int(p.winner_id) : null, str(p.created_at, 30), p.closed_at ? str(p.closed_at, 30) : null));
+    popts.forEach(o => upOp.run(int(o.id), int(o.poll_id), str(o.name, 100), o.appid ? int(o.appid) : null, o.image ? str(o.image, 500) : null));
+    pvotes.forEach(v => upPv.run(int(v.poll_id), int(v.option_id), v.voter ? str(v.voter, 100) : rnd(), str(v.ip, 100), str(v.created_at, 30)));
+    res.json({ ok: true, games: games.length, plays: plays.length, votes: votes.length, lists: lists.length, polls: polls.length });
   } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
@@ -458,6 +515,101 @@ app.get('/api/streams', async (_, res) => {
   const fromRecords = rows().filter(p => kickHost(p.video_url)).map(p => ({ id: 'r' + p.id, title: p.name, url: p.video_url, thumb: p.image || '', date: p.played_at, mins: 0, views: 0, score: p.score, source: 'kayit' }))
     .filter(x => !seen.has((x.url.match(/videos\/([0-9a-f-]+)/i) || [])[1]));
   res.json([...auto, ...fromRecords].slice(0, 12));
+});
+
+// --- Discord (isteğe bağlı): DISCORD_WEBHOOK_URL tanımlıysa yeni puan, anket ve haftalık yedek mesajı gönderilir ---
+const DISCORD = () => { const u = process.env.DISCORD_WEBHOOK_URL || ''; return /^https:\/\/(discord|discordapp)\.com\/api\/webhooks\//.test(u) ? u : ''; };
+async function discord(payload, file) {
+  const u = DISCORD(); if (!u) return false;
+  try {
+    const body = { allowed_mentions: { parse: [] }, ...payload };
+    let r;
+    if (file) {
+      const f = new FormData(); f.append('payload_json', JSON.stringify(body)); f.append('files[0]', new Blob([file.data], { type: 'application/json' }), file.name);
+      r = await fetch(u, { method: 'POST', body: f });
+    } else r = await fetch(u, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!r.ok) console.warn('Discord mesajı gönderilemedi:', r.status);
+    return r.ok;
+  } catch (e) { console.warn('Discord hatası:', e.message); return false; }
+}
+function notifyPlay(req, row) {
+  if (!row) return;
+  discord({ embeds: [{ title: String(row.name).slice(0, 250), url: `${originOf(req)}/oyun/${row.appid}`, color: 0xF4C430, footer: { text: 'OscoMatik' },
+    description: `Oscoliat'ın puanı: **${row.score} / 10**` + (row.note ? `\n> ${String(row.note).replace(/\s+/g, ' ').slice(0, 200)}` : ''), thumbnail: row.image ? { url: row.image } : undefined }] });
+}
+const meta = { get: k => (db.prepare('SELECT v FROM meta WHERE k=?').get(k) || {}).v, set: (k, v) => db.prepare('INSERT INTO meta(k,v) VALUES(?,?) ON CONFLICT(k) DO UPDATE SET v=excluded.v').run(k, v) };
+async function weeklyBackup() {
+  if (!DISCORD() || Date.now() - Number(meta.get('discord_backup_at') || 0) < 7 * 864e5) return;
+  const d = backupData(true), day = new Date().toISOString().slice(0, 10);
+  const ok = await discord({ content: `OscoMatik haftalık yedek (${day}): ${d.plays.length} oynanış, ${d.games.length} oyun. Kişisel veri (IP/oy tanımlayıcısı) içermez.` }, { name: `oscomatik-yedek-${day}.json`, data: JSON.stringify(d) });
+  if (ok) meta.set('discord_backup_at', String(Date.now()));
+}
+setInterval(() => weeklyBackup().catch(() => {}), 3600e3); setTimeout(() => weeklyBackup().catch(() => {}), 60e3);
+
+// --- "Sıradaki oyun" anketi ---
+const pollView = id => {
+  const p = db.prepare('SELECT * FROM polls WHERE id=?').get(id); if (!p) return null;
+  const options = db.prepare('SELECT o.id, o.name, o.appid, o.image, (SELECT COUNT(*) FROM poll_votes v WHERE v.option_id=o.id) AS votes FROM poll_options o WHERE o.poll_id=? ORDER BY o.id').all(id);
+  const closesIn = p.closes_at ? Math.max(0, Math.round((Date.parse(p.closes_at.replace(' ', 'T') + 'Z') - Date.now()) / 1000)) : null;
+  return { id: p.id, title: p.title, status: p.status, closes_in: closesIn, winner_id: p.winner_id, closed_at: p.closed_at, options, total: options.reduce((t, o) => t + o.votes, 0) };
+};
+function closePoll(id) {
+  const v = pollView(id); if (!v || v.status !== 'open') return null;
+  const w = [...v.options].sort((a, b) => b.votes - a.votes || a.id - b.id)[0];
+  db.prepare("UPDATE polls SET status='closed', closed_at=datetime('now'), winner_id=? WHERE id=?").run(w ? w.id : null, id);
+  const done = pollView(id);
+  discord({ embeds: [{ title: `Anket kapandı: ${v.title}`.slice(0, 250), color: 0x53FC18, footer: { text: 'OscoMatik' },
+    description: w ? `Kazanan: **${w.name}** (${w.votes} oy, toplam ${v.total} oy)` : 'Oy kullanılmadı.' }] });
+  return done;
+}
+const autoClose = () => db.prepare("SELECT id FROM polls WHERE status='open' AND closes_at IS NOT NULL AND closes_at <= datetime('now')").all().forEach(r => closePoll(r.id));
+setInterval(autoClose, 30e3);
+app.get('/api/poll', (_, res) => {
+  autoClose();
+  const r = db.prepare("SELECT id FROM polls WHERE status='open' ORDER BY id DESC LIMIT 1").get()
+    || db.prepare("SELECT id FROM polls WHERE status='closed' AND closed_at > datetime('now','-3 days') ORDER BY id DESC LIMIT 1").get();
+  res.set('Cache-Control', 'no-store').json(r ? pollView(r.id) : null);
+});
+app.post('/api/poll', needOwner, (req, res) => {
+  autoClose();
+  const title = String(req.body.title || '').trim().slice(0, 120);
+  const opts = (Array.isArray(req.body.options) ? req.body.options : []).map(o => ({ name: String(o.name || '').trim().slice(0, 100), appid: parseInt(o.appid, 10) || null })).filter(o => o.name);
+  if (!title) return res.status(400).json({ error: 'Anket başlığı boş olamaz' });
+  if (opts.length < 2 || opts.length > 6) return res.status(400).json({ error: 'Anketin 2 ile 6 arasında seçeneği olmalı' });
+  if (new Set(opts.map(o => o.name.toLowerCase())).size !== opts.length) return res.status(400).json({ error: 'Aynı seçenek iki kez eklenmiş' });
+  if (db.prepare("SELECT 1 FROM polls WHERE status='open'").get()) return res.status(409).json({ error: 'Zaten açık bir anket var, önce onu kapat' });
+  const mins = Math.max(0, Math.min(43200, parseInt(req.body.minutes, 10) || 0));
+  const closes = mins ? new Date(Date.now() + mins * 60000).toISOString().slice(0, 19).replace('T', ' ') : null;
+  const id = Number(db.prepare('INSERT INTO polls(title, closes_at) VALUES(?,?)').run(title, closes).lastInsertRowid);
+  const ins = db.prepare('INSERT INTO poll_options(poll_id,name,appid,image) VALUES(?,?,?,?)');
+  opts.forEach(o => {
+    const g = o.appid && db.prepare('SELECT image FROM games WHERE appid=?').get(o.appid);
+    ins.run(id, o.name, o.appid, o.appid ? ((g && g.image) || `https://cdn.cloudflare.steamstatic.com/steam/apps/${o.appid}/header.jpg`) : null);
+  });
+  discord({ embeds: [{ title: `Yeni anket: ${title}`.slice(0, 250), url: originOf(req), color: 0xB98CFF, footer: { text: 'OscoMatik' }, description: opts.map(o => `• ${o.name}`).join('\n') }] });
+  res.json(pollView(id));
+});
+app.post('/api/poll/:id/vote', async (req, res) => {
+  if (who(req)) return res.status(403).json({ error: NOADMIN });
+  autoClose();
+  const id = parseInt(req.params.id, 10), optId = parseInt(req.body.option_id, 10);
+  const p = db.prepare('SELECT status FROM polls WHERE id=?').get(id);
+  if (!p) return res.status(404).json({ error: 'Anket yok' });
+  if (p.status !== 'open') return res.status(409).json({ error: 'Bu anket kapandı' });
+  if (!db.prepare('SELECT 1 FROM poll_options WHERE id=? AND poll_id=?').get(optId, id)) return res.status(400).json({ error: 'Geçersiz seçenek' });
+  if (!rateOk(req)) return res.status(429).json({ error: 'Çok hızlı, biraz bekle' });
+  if (!(await captchaOk(req))) return res.status(400).json({ error: 'Bot doğrulaması başarısız, sayfayı yenileyip tekrar dene' });
+  const { voter, ip } = visitor(req, res);
+  if (db.prepare('SELECT 1 FROM poll_votes WHERE poll_id=? AND voter=?').get(id, voter)) return res.status(409).json({ error: 'Bu ankete zaten oy verdin' });
+  if (db.prepare('SELECT COUNT(*) n FROM poll_votes WHERE poll_id=? AND ip=?').get(id, ip).n >= 3) return res.status(429).json({ error: 'Bu ağdan çok fazla oy verildi' });
+  db.prepare('INSERT INTO poll_votes(poll_id,option_id,voter,ip) VALUES(?,?,?,?)').run(id, optId, voter, ip);
+  res.json(pollView(id));
+});
+app.post('/api/poll/:id/close', needOwner, (req, res) => { const v = closePoll(parseInt(req.params.id, 10)); res.json(v || pollView(parseInt(req.params.id, 10))); });
+app.delete('/api/poll/:id', needOwner, (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  db.prepare('DELETE FROM poll_votes WHERE poll_id=?').run(id); db.prepare('DELETE FROM poll_options WHERE poll_id=?').run(id); db.prepare('DELETE FROM polls WHERE id=?').run(id);
+  res.json({ ok: true });
 });
 
 // --- İstatistik ---
