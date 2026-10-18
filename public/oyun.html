@@ -6,6 +6,8 @@
 <title>__TITLE__</title>
 <meta name="description" content="__DESC__">
 <meta name="appid" content="__APPID__">
+<meta name="robots" content="__ROBOTS__">
+__RAW_JSONLD__
 <meta name="theme-color" content="#12072a"><meta name="color-scheme" content="dark">
 <meta property="og:type" content="website"><meta property="og:site_name" content="OscoMatik">
 <meta property="og:title" content="__TITLE__"><meta property="og:description" content="__DESC__">
@@ -49,7 +51,7 @@
 <div class="wrap">
 <nav class="top"><a class="brand" href="/">Osco<span>Matik</span></a><div><a class="link" href="/#puan">← Tüm oyunlar</a></div></nav>
 <main id="icerik"><div id="g"><p class="mut">Yükleniyor…</p></div></main>
-<footer><div class="fr"><span>© Oscoliat · OscoMatik</span><span><a href="/">Ana sayfa</a><a href="/gizlilik">Gizlilik politikası</a><a href="/cerez">Çerez politikası</a></span></div></footer>
+<footer><div class="fr"><span>© Oscoliat · OscoMatik</span><span><a href="/">Ana sayfa</a><a href="/gizlilik">Gizlilik politikası</a><a href="/cerez">Çerez politikası</a><a href="/kosullar">Kullanım koşulları</a></span></div></footer>
 </div>
 <script>
 const $=id=>document.getElementById(id);
@@ -59,13 +61,21 @@ const TRG={Action:'Aksiyon',Adventure:'Macera',Casual:'Rahat',Indie:'Bağımsız
 const tg=g=>TRG[g]||g;
 const STN={bitirdi:'Bitirdi',yarida:'Yarıda bıraktı',tekrar:'Tekrar oynanacak'};
 const voted=()=>{try{return JSON.parse(localStorage.getItem('voted')||'[]')}catch{return[]}};
+let ADMIN=false;
+let CF=null;
+async function cfToken(){
+  if(CF===null){try{CF=(await (await fetch('/api/config')).json()).turnstile||''}catch{CF=''}}
+  if(!CF)return '';
+  await new Promise((ok,no)=>{if(window.turnstile)return ok();const s=document.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;s.onload=ok;s.onerror=()=>no(new Error('Bot doğrulaması yüklenemedi'));document.head.appendChild(s)});
+  return new Promise((ok,no)=>{let box=document.getElementById('cfbox');if(!box){box=document.createElement('div');box.id='cfbox';box.style.cssText='position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60';document.body.appendChild(box)}
+    box.innerHTML='';turnstile.render(box,{sitekey:CF,appearance:'interaction-only',callback:t=>{box.innerHTML='';ok(t)},'error-callback':()=>no(new Error('Bot doğrulaması başarısız')),'timeout-callback':()=>no(new Error('Bot doğrulaması zaman aşımına uğradı'))})})}
 const markVoted=id=>{try{localStorage.setItem('voted',JSON.stringify([...voted(),id]))}catch{}};
 const card=p=>`<article class="panel pc"><div class="ph2"><div><b>${esc(p.played_at)}</b><span class="st ${p.status}">${STN[p.status]||''}</span></div><div class="sc">${fmt(p.score)}</div></div>
 ${p.tags.length?`<div class="tags">${p.tags.map(t=>`<span>${esc(t)}</span>`).join('')}</div>`:''}
 ${p.note?`<p class="nt">${esc(p.note)}</p>`:''}
 ${p.video_url?`<p><a class="btn" href="${esc(p.video_url)}" target="_blank" rel="noopener">▶ Yayın kaydını izle</a></p>`:''}
 <div class="vt"><span class="mut">${p.v_n?`İzleyici ortalaması <b>${fmt(p.v_avg)}</b> (${p.v_n} oy)`:'Henüz izleyici oyu yok'}</span>
-${voted().includes(p.id)?'<span class="mut">Oyun kaydedildi, teşekkürler.</span>':`<span class="vr"><label>Sen kaç verirdin? <b>7</b></label><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><button type="button" data-v="${p.id}">Oy ver</button></span>`}</div></article>`;
+${ADMIN?'<span class="mut">Yayıncı ve ekip izleyici oyu veremez.</span>':voted().includes(p.id)?'<span class="mut">Oyun kaydedildi, teşekkürler.</span>':`<span class="vr"><label>İzleyici oyu: sen kaç verirdin? <b>7</b></label><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><button type="button" data-v="${p.id}">Oy ver</button></span>`}</div></article>`;
 const PLAT={windows:'Windows',mac:'macOS',linux:'Linux'};
 const sec=(t,body)=>body?`<h2>${t}</h2>${body}`:'';
 async function main(){
@@ -85,7 +95,7 @@ async function main(){
   $('g').innerHTML=`<section class="gh">${g.image?`<img class="cv" src="${esc(g.image)}" alt="${esc(g.name)} kapak görseli" width="460" height="215">`:''}
   <div><h1>${esc(g.name)}</h1><p class="mut">${[g.developer,g.release].filter(Boolean).map(esc).join(' · ')}</p>
   <div class="avg"><b>${fmt(d.avg)}</b><span class="mut">/ 10 · Oscoliat'ın puanı</span></div>
-  <div class="act"><a class="btn" href="https://store.steampowered.com/app/${id}" target="_blank" rel="noopener">Steam'de gör</a><button id="cp" type="button">Bağlantıyı kopyala</button></div></div></section>
+  <div class="act"><a class="btn" href="https://store.steampowered.com/app/${id}" target="_blank" rel="noopener">Steam'de gör</a><button id="cp" type="button">Bağlantıyı kopyala</button><button id="sh" type="button" hidden>Paylaş</button><button id="cd" type="button">Puan kartı indir</button></div></div></section>
   ${chips?`<div class="chips">${chips}</div>`:''}
   ${sec('Oyun hakkında',(i.about?`<p class="about">${esc(i.about)}</p>`:'')+((i.cats||[]).length?`<div class="tags" style="margin-top:12px">${i.cats.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`:''))}
   ${sec('Bilgiler',facts.length?`<div class="panel"><dl class="facts">${facts.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>`:'')}
@@ -94,16 +104,39 @@ async function main(){
   <h2>Oynanışlar</h2><div id="pl">${d.plays.map(card).join('')}</div>
   ${sec('Aynı türden diğer oyunlar',(d.similar||[]).length?`<div class="sim">${d.similar.map(o=>`<a href="/oyun/${o.appid}">${o.image?`<img src="${esc(o.image)}" alt="" loading="lazy" decoding="async" width="230" height="108">`:''}${esc(o.name)} <b>${fmt(o.score)}</b></a>`).join('')}</div>`:'')}
   ${d.lists.length?`<h2>Listeler</h2><div class="tags">${d.lists.map(l=>`<span>${esc(l)}</span>`).join('')}</div>`:''}`;
+  if(navigator.share)$('sh').hidden=false;
+  window.GAME=d;
   if(i.about)document.querySelector('meta[name=description]').content=`${g.name}: ${i.about.slice(0,150)}`;
 }
 document.addEventListener('input',e=>{if(e.target.matches('.vr input')){const v=+e.target.value;e.target.style.setProperty('--p',v*10+'%');e.target.parentNode.querySelector('b').textContent=fmt(v)}});
 document.addEventListener('click',async e=>{
+  if(e.target.id==='sh'){try{await navigator.share({title:document.title,text:`${GAME.game.name}: Oscoliat ${fmt(GAME.avg)} / 10 verdi`,url:location.href})}catch{}return}
+  if(e.target.id==='cd'){scoreCard(GAME);return}
   if(e.target.id==='cp'){const u=location.href;try{await navigator.clipboard.writeText(u);e.target.textContent='Kopyalandı ✓'}catch{prompt('Bağlantı:',u)}return}
   const b=e.target.closest('button[data-v]');if(!b)return;const id=+b.dataset.v;
-  try{const r=await fetch('/api/plays/'+id+'/vote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:+b.parentNode.querySelector('input').value})});
+  try{const cf=await cfToken();const r=await fetch('/api/plays/'+id+'/vote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({score:+b.parentNode.querySelector('input').value,cf})});
     const j=await r.json().catch(()=>({}));if(!r.ok&&!/zaten/.test(j.error||''))throw new Error(j.error||'Hata');markVoted(id);main()}
   catch(x){alert(x.message)}});
-main();
+// Paylaşılabilir puan kartı (PNG, 1080x1080)
+async function scoreCard(d){
+  const g=d.game,i=d.info||{},rv=i.rev,vn=d.plays.reduce((s,p)=>s+p.v_n,0),va=vn?d.plays.reduce((s,p)=>s+(p.v_avg||0)*p.v_n,0)/vn:null;
+  const c=document.createElement('canvas');c.width=1080;c.height=1080;const x=c.getContext('2d');
+  const gr=x.createLinearGradient(0,0,1080,1080);gr.addColorStop(0,'#4a2394');gr.addColorStop(1,'#12072a');x.fillStyle=gr;x.fillRect(0,0,1080,1080);
+  const F='"Bricolage Grotesque",system-ui,sans-serif',T=(s,px,xx,y,col,w=800)=>{x.font=`${w} ${px}px ${F}`;x.fillStyle=col;x.fillText(s,xx,y)};
+  const fit=(s,px,w)=>{x.font=`800 ${px}px ${F}`;if(x.measureText(s).width<=w)return s;while(s.length>1&&x.measureText(s+'…').width>w)s=s.slice(0,-1);return s+'…'};
+  T('OscoMatik · Oscoliat',40,80,100,'#ad9fd6');
+  const im=await new Promise(r=>{if(!g.image)return r(null);const m=new Image();m.crossOrigin='anonymous';m.onload=()=>r(m);m.onerror=()=>r(null);m.src=g.image});
+  if(im)x.drawImage(im,80,140,920,430);
+  const y=im?640:260;
+  T(fit(g.name,64,920),64,80,y,'#f3eeff');
+  T("OSCOLIAT'IN PUANI",30,80,y+70,'#ad9fd6',600);
+  const n=fmt(d.avg);x.font=`800 190px ${F}`;const w=x.measureText(n).width;
+  T(n,190,80,y+235,'#f4c430');T('/ 10',60,80+w+20,y+235,'#ad9fd6',600);
+  T([va!=null?`İzleyici ${fmt(+va.toFixed(1))} (${vn} oy)`:'',rv?`Steam %${rv.pct} olumlu`:''].filter(Boolean).join('   ·   '),38,80,y+305,'#f3eeff',600);
+  T(location.host,30,80,1030,'#ad9fd6',500);
+  c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`oscomatik-${g.name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'oyun'}.png`;a.click()},'image/png');
+}
+fetch('/api/me').then(r=>r.json()).then(j=>{ADMIN=!!j.admin}).catch(()=>{}).finally(main);
 </script>
 </body>
 </html>

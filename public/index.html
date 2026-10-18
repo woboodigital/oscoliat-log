@@ -203,6 +203,24 @@ a.tc{display:block;text-decoration:none}
 .kb{position:absolute;left:8px;top:8px;background:#53fc18;color:#0a1a00;font:800 .7rem/1.5 var(--d);font-style:normal;letter-spacing:.08em;padding:1px 8px;border-radius:6px}
 .kd{position:absolute;right:8px;bottom:8px;background:#000b;color:#fff;font:600 .75rem/1.5 var(--b);font-style:normal;padding:0 7px;border-radius:6px}
 .kc:hover .kt img{border-color:#53fc18}
+/* ---- Izgara, anket, YouTube teması ---- */
+.gridv{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.gc{position:relative;display:block;color:var(--tx);text-decoration:none;font-size:.92rem;line-height:1.3}
+.gc img,.gc .ph{display:block;width:100%;height:auto;aspect-ratio:460/215;object-fit:cover;border-radius:12px;border:1px solid var(--line);margin-bottom:6px;background:var(--surf)}
+.gc:hover img{border-color:var(--gold)}.gc b{display:block;overflow-wrap:anywhere}.gc small{color:var(--mut)}
+.gs{position:absolute;right:8px;top:8px;background:var(--gold);color:#241a00;font:800 1rem/1.4 var(--d);padding:0 10px;border-radius:99px;box-shadow:0 2px 10px #0008}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.po{border:1px solid var(--line);background:var(--surf);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px;position:relative}
+.po img{width:100%;aspect-ratio:460/215;object-fit:cover;border-radius:10px;display:block}.po b{overflow-wrap:anywhere}.po small{color:var(--mut)}
+.po.win{border-color:var(--gold);box-shadow:0 0 0 2px #f4c43055}.pw{position:absolute;right:10px;top:10px;background:var(--gold);color:#241a00;font:800 .72rem/1.5 var(--d);font-style:normal;padding:0 9px;border-radius:99px}
+.pb{height:8px;border-radius:99px;background:var(--line);overflow:hidden}.pb i{display:block;height:100%;background:linear-gradient(90deg,var(--cy),var(--gold));border-radius:99px;transition:width .4s}
+.po button{margin-top:4px}
+#mg{max-height:90vh;overflow:auto}
+.soc a.y{border-color:#ff2d2d99;color:#ffc9c9}.soc a.y:hover{border-color:#ff2d2d}
+.yb{background:#ff2d2d;color:#fff}
+.ytc .kt img{border-color:#ff2d2d77}.ytc:hover .kt img{border-color:#ff2d2d}.ytc:hover>span{color:#ff8b8b}
+.kc .kt img{border-color:#53fc1866}.kc:hover>span{color:#8dff66}
+#vsec .sh h2::before{background:#ff3b3b}#ksec .sh h2::before{background:#53fc18}
 </style>
 </head>
 <body>
@@ -231,8 +249,13 @@ a.tc{display:block;text-decoration:none}
     <a class="live" id="lv" href="https://kick.com/oscoliat" target="_blank" rel="noopener" hidden><i></i><span id="lvt">Şimdi yayında</span></a>
     <h1>Oscoliat</h1>
     <p>Hikayeli, eğlenceli ve komik oyunlar, ekip oyunları ve yeni oyunlara ilk bakış. Türkçe, Kick'te canlı, YouTube'da kayıtlı. Biten her oyun burada puanlanır.</p>
-    <div class="soc"><a class="k" href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick'te izle</a><a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></div>
+    <div class="soc"><a class="k" href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick'te izle</a><a class="y" href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></div>
   </div>
+</section>
+
+<section class="sec" id="psec" hidden>
+  <div class="sh"><div><h2 id="anket">Sıradaki oyun hangisi olsun?</h2><p id="ptl"></p></div><div id="pact" style="display:flex;gap:8px"></div></div>
+  <div class="panel" id="pbody"></div>
 </section>
 
 <section class="sec" id="puan">
@@ -249,8 +272,8 @@ a.tc{display:block;text-decoration:none}
       <select id="fyr" aria-label="Yıl"><option value="">Tüm yıllar</option></select>
       <label class="ck"><input type="checkbox" id="fvd"> İzleyiciyle ayrışanlar</label><label class="ck"><input type="checkbox" id="fvid"> Yayın kaydı olanlar</label>
       <button class="link" id="frs" type="button">Sıfırla</button></div>
-    <div class="vw"><button class="on" id="vlist">Liste</button><button id="vtier">Tier listesi</button></div>
-    <div id="list"></div><button id="more" hidden style="margin:12px auto 0;display:block">Daha fazla göster</button><div id="tier" hidden></div>
+    <div class="vw"><button class="on" id="vlist">Liste</button><button id="vgrid">Kapak ızgarası</button><button id="vtier">Tier listesi</button></div>
+    <div id="list"></div><div id="grid" class="gridv" hidden></div><button id="more" hidden style="margin:12px auto 0;display:block">Daha fazla göster</button><div id="tier" hidden></div>
   </div>
 </section>
 
@@ -306,7 +329,7 @@ a.tc{display:block;text-decoration:none}
 
 <footer>
   <div class="fr"><span>© Oscoliat · OscoMatik</span><span><a href="https://kick.com/oscoliat" target="_blank" rel="noopener">Kick</a><a href="https://www.youtube.com/@Oscoliat" target="_blank" rel="noopener">YouTube</a><a href="https://www.instagram.com/oscoliat/" target="_blank" rel="noopener">Instagram</a><a href="https://discord.gg/tyQetWZ" target="_blank" rel="noopener">Discord</a></span></div>
-  <div class="fl2"><a href="/gizlilik">Gizlilik politikası</a><a href="/cerez">Çerez politikası</a></div>
+  <div class="fl2"><a href="/gizlilik">Gizlilik politikası</a><a href="/cerez">Çerez politikası</a><a href="/kosullar">Kullanım koşulları</a></div>
   <p class="disc">Oyun adları, kapak görselleri ve markalar ilgili hak sahiplerine aittir. Bu site Valve/Steam, Kick, Google/YouTube, Discord veya Meta ile bağlantılı değildir. Puanlar ve notlar yayıncının kişisel görüşüdür.</p>
 </footer>
 </main>
@@ -338,6 +361,13 @@ a.tc{display:block;text-decoration:none}
   <div class="fld"><label>Yedek</label>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btnlink" href="/api/backup">Yedeği indir (JSON)</a><a class="btnlink" href="/api/export.csv">CSV indir</a><button type="button" id="rsb">Yedekten geri yükle…</button><input type="file" id="rsf" accept="application/json,.json" hidden></div>
     <small class="mut">Geri yükleme mevcut kayıtların üzerine yazar, hiçbir şeyi silmez.</small></div>
+  <div class="fld"><label>Sıradaki oyun anketi</label>
+    <input id="pt" placeholder="Anket başlığı (örn. Sıradaki oyun hangisi olsun?)" maxlength="120" aria-label="Anket başlığı">
+    <div class="adf"><input id="pq" placeholder="Oyun ara (Steam) veya yaz" autocomplete="off" aria-label="Seçenek ara"><button type="button" id="pad">Yazdığımı ekle</button></div>
+    <div class="res" id="pres"></div><div id="popt" class="tags" style="margin-top:8px"></div>
+    <div class="adf"><select id="pm" aria-label="Anket süresi"><option value="0">Süre sınırı yok</option><option value="60">1 saat</option><option value="180">3 saat</option><option value="1440" selected>24 saat</option><option value="4320">3 gün</option></select><button class="pri" type="button" id="pgo">Anketi başlat</button></div>
+    <small class="mut">2 ile 6 seçenek. Aynı anda tek anket açık olabilir. Anket ana sayfanın en üstünde görünür.</small></div>
+  <div class="fld"><label>Çöp kutusu</label><div id="trl"></div><small class="mut">Silinen kayıtlar 30 gün saklanır, sonra kalıcı olarak silinir.</small></div>
   <div id="mge" role="alert" style="min-height:1.4em;margin-top:10px"></div>
 </dialog>
 <div id="rv"><canvas id="cf"></canvas><i id="rf"></i><i id="rg"></i><button id="rx" aria-label="Kapat">✕</button><small id="rb">OscoMatik</small><img id="ri" alt=""><h2 id="rt"></h2><div id="rn">0</div><p id="rp"></p><small id="rh">Kapatmak için dokun · Esc</small></div>
@@ -350,7 +380,7 @@ const TRG={Action:'Aksiyon',Adventure:'Macera',Casual:'Rahat',Indie:'Bağımsız
 const tg=g=>TRG[g]||g;
 const api=async(u,o={})=>{const r=await fetch(u,{headers:{'Content-Type':'application/json'},...o,body:o.body&&JSON.stringify(o.body)});
   const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Hata');return j};
-let lim=20,role=null,plays=[],lists=[],admin=false,pickId=null,pickName='',editId=null;
+let lim=20,vmode='list',role=null,plays=[],lists=[],admin=false,pickId=null,pickName='',editId=null;
 
 async function load(){
   const [p,s,me,ls]=await Promise.all([api('/api/plays'),api('/api/stats'),api('/api/me'),api('/api/lists')]);
@@ -366,7 +396,7 @@ async function load(){
   $('mon').innerHTML=s.months.slice(-12).map(m=>`<div class="li"><span>${m.month}</span><b>${m.count}</b></div>`).join('')||'<span style="color:var(--mut)">Veri yok</span>';
   const cur=$('gf').value;$('gf').innerHTML='<option value="">Tüm türler</option>'+s.genres.map(g=>`<option value="${esc(g.name)}">${esc(tg(g.name))}</option>`).join('');$('gf').value=cur;
   const ct=$('tf').value;$('tf').innerHTML='<option value="">Tüm etiketler</option>'+s.tags.map(t=>`<option>${esc(t.name)}</option>`).join('');$('tf').value=ct;
-  render();renderLists();renderYear();
+  render();renderLists();renderYear();renderPoll();
 }
 const voted=()=>{try{return JSON.parse(localStorage.getItem('voted')||'[]')}catch{return[]}};
 const markVoted=id=>{try{localStorage.setItem('voted',JSON.stringify([...voted(),id]))}catch{}};
@@ -384,15 +414,15 @@ function render(){
   const q=$('q').value.toLowerCase(),g=$('gf').value,so=$('so').value;
   let a=plays.filter(p=>(!g||p.genres.includes(g))&&(!$('sf').value||p.status===$('sf').value)&&(!$('tf').value||p.tags.includes($('tf').value))&&(!q||(p.name+' '+p.note).toLowerCase().includes(q))&&advOk(p));
   if(so==='hi')a.sort((x,y)=>y.score-x.score);if(so==='lo')a.sort((x,y)=>x.score-y.score);if(so==='az')a.sort((x,y)=>x.name.localeCompare(y.name,'tr'));
-  renderTier(a);
+  renderTier(a);renderGrid(a);
   $('list').innerHTML=a.slice(0,lim).map(p=>`<div class="row" id="oyun-${p.id}" data-id="${p.id}">
    ${p.image?`<a class="cvl" href="/oyun/${p.appid}" tabindex="-1" aria-hidden="true"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" width="96" height="45"></a>`:'<div class="ph"></div>'}
    <div><h3><a class="rt" href="/oyun/${p.appid}">${esc(p.name)}</a></h3><small>${esc(p.played_at)} · ${esc(p.genres.map(tg).join(', ')||'Tür yok')}${p.v_n?` · izleyici ${fmt(p.v_avg)} (${p.v_n} oy)`:''}</small> <span class="st ${p.status}">${STN[p.status]||''}</span>${p.tags.length?`<span class="chips">${p.tags.map(t=>`<span class="chip">${esc(t)}</span>`).join('')}</span>`:''}</div><div class="scw"><div class="sc">${fmt(p.score)}</div><button class="tgl" type="button" data-a="tg" aria-expanded="false" aria-label="Ayrıntıları aç veya kapat" title="Oy ver, ayrıntılar">▾</button></div>
    ${p.note?`<div class="note">${esc(p.note)}</div>`:''}
-   <div class="vt">${voted().includes(p.id)?'Oyun kaydedildi, teşekkürler.':`<span>Sen kaç verirdin?</span><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><b>7</b><button data-a="vote">Oy ver</button>`}</div>
+   <div class="vt">${admin?`<span class="mut">İzleyici oyu: ${p.v_n?`ortalama ${fmt(p.v_avg)} (${p.v_n} oy)`:'henüz oy yok'}</span>`:voted().includes(p.id)?'Oyun kaydedildi, teşekkürler.':`<span>İzleyici oyu: sen kaç verirdin?</span><input type="range" min="0" max="10" step="0.5" value="7" aria-label="İzleyici puanı"><b>7</b><button data-a="vote">Oy ver</button>`}</div>
    <div class="lnk"><a class="btnlink" href="/oyun/${p.appid}">Oyun sayfasına git →</a>${p.video_url?`<a class="link" href="${esc(p.video_url)}" target="_blank" rel="noopener">▶ Yayın kaydını izle</a>`:''}<button class="link" data-a="cp">Bağlantıyı kopyala</button></div>
    <div class="acts ${admin?'on':''}"><button data-a="rv">Puanı tekrar aç</button><button data-a="ov" title="OBS yayın ekranında (overlay) bu oyunun puan açılışını 20 saniye gösterir">Yayın ekranına gönder</button>${lists.length?`<select data-a="al" aria-label="Listeye ekle"><option value="">Listeye ekle…</option>${lists.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join('')}</select>`:''}<button data-a="ed">Düzenle</button>${role==='owner'?'<button data-a="del">Sil</button>':''}</div></div>`).join('')||'<p style="color:var(--mut)">Eşleşen oyun yok.</p>';
-  $('more').hidden=a.length<=lim;$('more').textContent=`Daha fazla göster (${a.length-lim} oyun daha)`;
+  $('more').hidden=a.length<=lim||vmode==='tier';$('more').textContent=`Daha fazla göster (${a.length-lim} oyun daha)`;
 }
 $('list').onclick=e=>{const r=e.target.closest('.row');if(!r)return;const p=plays.find(x=>x.id==r.dataset.id),a=e.target.dataset.a;
   if(e.target.closest('a'))return;
@@ -400,10 +430,10 @@ $('list').onclick=e=>{const r=e.target.closest('.row');if(!r)return;const p=play
   if(a==='cp'){const u=location.origin+location.pathname+'#oyun-'+p.id;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>{e.target.textContent='Kopyalandı ✓'}).catch(()=>prompt('Bağlantı:',u));return}
   if(a==='rv')return reveal(p);
   if(a==='al')return;
-  if(e.target.closest('.vt')){if(a==='vote')api(`/api/plays/${p.id}/vote`,{method:'POST',body:{score:+r.querySelector('.vt input').value}}).then(()=>{markVoted(p.id);load()}).catch(x=>{alert(x.message);if(/zaten/.test(x.message)){markVoted(p.id);load()}});return}
+  if(e.target.closest('.vt')){if(a==='vote')cfToken().then(cf=>api(`/api/plays/${p.id}/vote`,{method:'POST',body:{score:+r.querySelector('.vt input').value,cf}})).then(()=>{markVoted(p.id);load()}).catch(x=>{alert(x.message);if(/zaten/.test(x.message)){markVoted(p.id);load()}});return}
   if(a==='ov')return api('/api/overlay/show',{method:'POST',body:{play_id:p.id}}).then(()=>alert('Overlay\'e gönderildi'));
   if(a==='ed'){editId=p.id;pickId=p.appid;openDlg(p);return}
-  if(a==='del'){if(confirm(p.name+' kaydı silinsin mi?'))api('/api/plays/'+p.id,{method:'DELETE'}).then(load);return}
+  if(a==='del'){if(confirm(p.name+' kaydı çöp kutusuna taşınsın mı? 30 gün içinde Yönetim > Çöp kutusu bölümünden geri alabilirsin.'))api('/api/plays/'+p.id,{method:'DELETE'}).then(load);return}
   if(!a)togRow(r)};
 function togRow(r){r.classList.toggle('open');const b=r.querySelector('.tgl');if(b)b.setAttribute('aria-expanded',r.classList.contains('open'))}
 ['gf','sf','tf','so','fmin','fmax','fyr','fvd','fvid'].forEach(i=>$(i).oninput=()=>{lim=20;render()});
@@ -481,8 +511,9 @@ function renderTier(a){
   $('tier').innerHTML=TIERS.map(([L,min,c],i)=>{const up=i?TIERS[i-1][1]:11,it=g.filter(x=>x.avg>=min&&x.avg<up);
     return `<div class="tr"><div class="tl" style="background:${c}">${L}</div><div class="tg">${it.map(x=>`<a class="tc" href="/oyun/${x.appid}" title="${esc(x.name)}">${x.image?`<img src="${esc(x.image)}" alt="" loading="lazy">`:'<div class="ph"></div>'}${esc(x.name)} <b style="color:${c}">${fmt(+x.avg.toFixed(1))}</b></a>`).join('')||'<span style="color:var(--mut)">–</span>'}</div></div>`}).join('');
 }
-function view(t){$('list').hidden=t;$('tier').hidden=!t;$('vlist').classList.toggle('on',!t);$('vtier').classList.toggle('on',t)}
-$('vlist').onclick=()=>view(false);$('vtier').onclick=()=>view(true);
+function view(m){vmode=m;$('list').hidden=m!=='list';$('grid').hidden=m!=='grid';$('tier').hidden=m!=='tier';['list','grid','tier'].forEach(k=>$('v'+k).classList.toggle('on',k===m))}
+function renderGrid(a){$('grid').innerHTML=a.slice(0,lim).map(p=>`<a class="gc" href="/oyun/${p.appid}">${p.image?`<img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" width="230" height="108">`:'<div class="ph"></div>'}<span class="gs">${fmt(p.score)}</span><b>${esc(p.name)}</b><small>${esc(p.played_at)}</small></a>`).join('')||'<p style="color:var(--mut)">Eşleşen oyun yok.</p>'}
+$('vlist').onclick=()=>{view('list');render()};$('vgrid').onclick=()=>{view('grid');render()};$('vtier').onclick=()=>{view('tier');render()};
 
 function yearData(k){
   const a=plays.filter(p=>p.played_at.startsWith(k));if(!a.length)return null;
@@ -526,7 +557,7 @@ async function dlCard(k){
 }
 $('ydl').onclick=()=>dlCard($('yy').value);$('mdl').onclick=()=>dlCard($('mm').value);
 async function loadVideos(){try{const v=await api('/api/videos');$('vsec').hidden=!v.length;
-  $('vg').innerHTML=v.map(x=>`<a class="vc" href="${esc(x.url)}" target="_blank" rel="noopener"><img src="https://i.ytimg.com/vi/${esc(x.id)}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><span>${esc(x.title)}</span><small>${new Date(x.published).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</small></a>`).join('');vcUpd()}catch{$('vsec').hidden=true}}
+  $('vg').innerHTML=v.map(x=>`<a class="vc ytc" href="${esc(x.url)}" target="_blank" rel="noopener"><div class="kt"><img src="https://i.ytimg.com/vi/${esc(x.id)}/mqdefault.jpg" alt="" loading="lazy" decoding="async" width="320" height="180"><em class="kb yb">YOUTUBE</em></div><span>${esc(x.title)}</span><small>${[new Date(x.published).toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}),x.views?x.views.toLocaleString('tr-TR')+' görüntülenme':''].filter(Boolean).join(' · ')}</small></a>`).join('');vcUpd()}catch{$('vsec').hidden=true}}
 let lvMode='auto';
 async function loadLive(){try{const l=await api('/api/live');lvMode=l.mode;$('lv').hidden=!l.live;$('lvt').textContent=l.title?'Yayında: '+l.title:'Şimdi yayında';$('lvb').textContent='Rozet: '+({auto:'otomatik',on:'açık',off:'kapalı'}[l.mode])}catch{}}
 $('lvb').onclick=async()=>{await api('/api/live/override',{method:'POST',body:{mode:{auto:'on',on:'off',off:'auto'}[lvMode]}});loadLive()};
@@ -552,7 +583,7 @@ function openHash(){const m=location.hash.match(/^#oyun-(\d+)$/);if(!m)return;le
   if(!r&&plays.some(p=>p.id==m[1])){lim=plays.length;render();r=$('oyun-'+m[1])}
   if(r){r.classList.add('open');const b=r.querySelector('.tgl');if(b)b.setAttribute('aria-expanded','true');r.scrollIntoView({block:'center'})}}
 async function loadAdm(){try{const a=await api('/api/admins');$('adl').innerHTML=a.map(x=>`<div class="li"><span>${esc(x.username)}</span><button class="link" type="button" data-id="${x.id}">Kaldır</button></div>`).join('')||'<small class="mut">Henüz ekip hesabı yok.</small>'}catch(e){$('mge').textContent=e.message}}
-$('mgb').onclick=()=>{$('mge').textContent='';$('mg').showModal();loadAdm()};
+$('mgb').onclick=()=>{$('mge').textContent='';$('mg').showModal();loadAdm();loadTrash()};
 $('mx').onclick=()=>$('mg').close();
 $('aad').onclick=async()=>{try{await api('/api/admins',{method:'POST',body:{username:$('anu').value,password:$('anp').value}});$('anu').value=$('anp').value='';$('mge').textContent='';loadAdm()}catch(e){$('mge').style.color='var(--bad)';$('mge').textContent=e.message}};
 $('adl').onclick=async e=>{const b=e.target.closest('button');if(b&&confirm('Bu hesap kaldırılsın mı?')){await api('/api/admins/'+b.dataset.id,{method:'DELETE'});loadAdm()}};
@@ -571,7 +602,52 @@ let ALLTAGS=[];
 function tagSug(){const cur=$('tgs').value.split(',').map(t=>t.trim().toLowerCase());$('tsg').innerHTML=ALLTAGS.filter(t=>!cur.includes(t)).slice(0,8).map(t=>`<button type="button" data-t="${esc(t)}">+ ${esc(t)}</button>`).join('')}
 $('tsg').onclick=e=>{const b=e.target.closest('button');if(!b)return;const v=$('tgs').value.trim().replace(/,$/,'');$('tgs').value=(v?v+', ':'')+b.dataset.t;tagSug()};
 $('tgs').addEventListener('input',tagSug);
-load().then(openHash);
+// --- Bot doğrulaması (isteğe bağlı), anket, çöp kutusu ---
+let CF=null;
+async function cfToken(){
+  if(CF===null){try{CF=(await (await fetch('/api/config')).json()).turnstile||''}catch{CF=''}}
+  if(!CF)return '';
+  await new Promise((ok,no)=>{if(window.turnstile)return ok();const s=document.createElement('script');s.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';s.async=true;s.onload=ok;s.onerror=()=>no(new Error('Bot doğrulaması yüklenemedi'));document.head.appendChild(s)});
+  return new Promise((ok,no)=>{let box=document.getElementById('cfbox');if(!box){box=document.createElement('div');box.id='cfbox';box.style.cssText='position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60';document.body.appendChild(box)}
+    box.innerHTML='';turnstile.render(box,{sitekey:CF,appearance:'interaction-only',callback:t=>{box.innerHTML='';ok(t)},'error-callback':()=>no(new Error('Bot doğrulaması başarısız')),'timeout-callback':()=>no(new Error('Bot doğrulaması zaman aşımına uğradı'))})})}
+let POLL=null,pollAt=0;
+const pv=()=>{try{return JSON.parse(localStorage.getItem('pvoted')||'[]')}catch{return[]}};
+const markPv=id=>{try{localStorage.setItem('pvoted',JSON.stringify([...pv(),id]))}catch{}};
+const fmtLeft=s=>{if(s<=0)return 'süre doldu';const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return [d?d+' gün':'',h?h+' sa':'',!d&&(m||!h)?m+' dk':''].filter(Boolean).join(' ')};
+function pollLine(){const p=POLL;if(!p)return '';const left=p.closes_in==null?null:p.closes_in-Math.round((Date.now()-pollAt)/1000);
+  return p.status==='open'?`Oylama açık${left!=null?` · kalan ${fmtLeft(left)}`:''} · ${p.total} oy`:`Anket kapandı · ${p.total} oy`}
+function renderPoll(){
+  const p=POLL;$('psec').hidden=!p;if(!p)return;
+  const open=p.status==='open',voted=pv().includes(p.id),canVote=open&&!admin&&!voted;
+  $('anket').textContent=p.title;$('ptl').textContent=pollLine();
+  $('pbody').innerHTML=`<div class="pgrid">${p.options.map(o=>{const win=!open&&p.winner_id===o.id,pct=p.total?Math.round(o.votes/p.total*100):0;
+    return `<div class="po${win?' win':''}">${o.image?`<img src="${esc(o.image)}" alt="" loading="lazy" decoding="async" width="230" height="108" onerror="this.remove()">`:''}<b>${esc(o.name)}</b>${win?'<em class="pw">Kazanan</em>':''}<div class="pb" role="img" aria-label="%${pct}"><i style="width:${pct}%"></i></div><small>${o.votes} oy · %${pct}</small>${canVote?`<button type="button" class="pri" data-po="${o.id}">Bunu seç</button>`:''}</div>`}).join('')}</div>${voted&&open?'<p class="mut" style="margin:12px 0 0">Oyun kaydedildi, teşekkürler.</p>':''}${admin&&open?'<p class="mut" style="margin:12px 0 0">Yayıncı ve ekip izleyici anketine oy veremez.</p>':''}`;
+  $('pact').innerHTML=role==='owner'?`${open?'<button type="button" id="pcl">Anketi kapat</button>':''}<button type="button" class="link" id="pdl">Anketi sil</button>`:'';
+}
+async function loadPoll(){try{POLL=await api('/api/poll');pollAt=Date.now();renderPoll()}catch{}}
+$('pbody').onclick=async e=>{const b=e.target.closest('button[data-po]');if(!b)return;
+  try{const cf=await cfToken();POLL=await api(`/api/poll/${POLL.id}/vote`,{method:'POST',body:{option_id:+b.dataset.po,cf}});pollAt=Date.now();markPv(POLL.id);renderPoll()}
+  catch(x){alert(x.message);if(/zaten/.test(x.message)){markPv(POLL.id);renderPoll()}}};
+$('pact').onclick=async e=>{const id=e.target.id;
+  if(id==='pcl'&&confirm('Anket kapatılsın ve kazanan belirlensin mi?')){POLL=await api(`/api/poll/${POLL.id}/close`,{method:'POST'});pollAt=Date.now();renderPoll()}
+  if(id==='pdl'&&confirm('Anket tamamen silinsin mi?')){await api('/api/poll/'+POLL.id,{method:'DELETE'});loadPoll()}};
+setInterval(()=>{if(POLL&&POLL.status==='open')$('ptl').textContent=pollLine()},1000);setInterval(loadPoll,20000);
+let POPTS=[];
+function renderPopts(){$('popt').innerHTML=POPTS.map((o,i)=>`<span>${esc(o.name)} <button class="link" type="button" data-i="${i}" aria-label="Kaldır">×</button></span>`).join('')}
+function addPopt(name,appid){name=String(name||'').trim();if(!name||POPTS.length>=6||POPTS.some(o=>o.name.toLowerCase()===name.toLowerCase()))return;POPTS.push({name,appid:appid||null});renderPopts()}
+let pqt;$('pq').oninput=()=>{clearTimeout(pqt);pqt=setTimeout(async()=>{const q=$('pq').value.trim();if(q.length<2){$('pres').innerHTML='';return}
+  try{const r=await api('/api/search?q='+encodeURIComponent(q));$('pres').innerHTML=r.map(x=>`<button type="button" data-id="${x.appid}" data-n="${esc(x.name)}"><span>${esc(x.name)}</span></button>`).join('')}catch{}},250)};
+$('pres').onclick=e=>{const b=e.target.closest('button');if(b){addPopt(b.dataset.n,+b.dataset.id);$('pq').value='';$('pres').innerHTML=''}};
+$('pad').onclick=()=>{addPopt($('pq').value);$('pq').value='';$('pres').innerHTML=''};
+$('popt').onclick=e=>{const b=e.target.closest('button');if(b){POPTS.splice(+b.dataset.i,1);renderPopts()}};
+$('pgo').onclick=async()=>{try{await api('/api/poll',{method:'POST',body:{title:$('pt').value,options:POPTS,minutes:+$('pm').value}});POPTS=[];renderPopts();$('pt').value='';
+  $('mge').style.color='var(--cy)';$('mge').textContent='Anket başlatıldı, ana sayfanın üstünde görünüyor.';loadPoll()}catch(e){$('mge').style.color='var(--bad)';$('mge').textContent=e.message}};
+async function loadTrash(){try{const t=await api('/api/trash');$('trl').innerHTML=t.map(x=>`<div class="li"><span>${esc(x.name)} <small class="mut">${esc(x.played_at)} · ${fmt(x.score)}</small></span><span><button class="link" type="button" data-r="${x.id}">Geri al</button><button class="link" type="button" data-x="${x.id}">Kalıcı sil</button></span></div>`).join('')||'<small class="mut">Çöp kutusu boş.</small>'}catch(e){$('mge').textContent=e.message}}
+$('trl').onclick=async e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.r){await api(`/api/trash/${b.dataset.r}/restore`,{method:'POST'});load()}
+  else if(b.dataset.x&&confirm('Bu kayıt kalıcı olarak silinsin mi? Geri alınamaz.'))await api('/api/trash/'+b.dataset.x,{method:'DELETE'});
+  loadTrash()};
+load().then(()=>{openHash();loadPoll()});
 </script>
 </body>
 </html>

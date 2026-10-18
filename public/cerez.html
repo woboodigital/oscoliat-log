@@ -15,7 +15,7 @@
 <body>
 <a class="skip" href="#icerik">İçeriğe geç</a>
 <div class="wrap">
-<nav class="top"><a class="brand" href="/">Osco<span>Matik</span></a><div><a class="link" href="/">← Ana sayfa</a><a class="link" href="/gizlilik">Gizlilik</a><a class="link" href="/cerez">Çerezler</a></div></nav>
+<nav class="top"><a class="brand" href="/">Osco<span>Matik</span></a><div><a class="link" href="/">← Ana sayfa</a><a class="link" href="/gizlilik">Gizlilik</a><a class="link" href="/cerez">Çerezler</a><a class="link" href="/kosullar">Koşullar</a></div></nav>
 <main id="icerik" class="doc">
 <h1>Çerez Politikası</h1>
 <p class="mut">Son güncelleme: __LEGAL_DATE__</p>
@@ -30,8 +30,8 @@
 <thead><tr><th>Ad</th><th>Tür</th><th>Ne zaman oluşur</th><th>Amaç</th><th>Süre</th></tr></thead>
 <tbody>
 <tr><td><code>sess</code></td><td>Zorunlu, birinci taraf (HttpOnly, Secure, SameSite=Lax)</td><td>Yalnızca yayıncı veya ekip üyesi giriş yaptığında</td><td>Yönetim oturumunu açık tutmak</td><td>30 gün veya çıkış yapana kadar</td></tr>
-<tr><td><code>vid</code></td><td>İşlevsel, birinci taraf (HttpOnly, Secure, SameSite=Lax)</td><td>Yalnızca bir oynanışa oy verdiğinizde</td><td>Rastgele bir kimlik tutarak aynı oynanışa birden fazla oy verilmesini sınırlamak; kişisel bilgi içermez</td><td>1 yıl</td></tr>
-<tr><td><code>voted</code></td><td>İşlevsel, yerel depolama</td><td>Oy verdiğinizde</td><td>Hangi oynanışlara oy verdiğinizi bu cihazda hatırlamak ve oy formunu tekrar göstermemek</td><td>Siz silene kadar</td></tr>
+<tr><td><code>vid</code></td><td>İşlevsel, birinci taraf (HttpOnly, Secure, SameSite=Lax)</td><td>Yalnızca bir oynanışa veya ankete oy verdiğinizde</td><td>Rastgele bir kimlik tutarak aynı oynanışa birden fazla oy verilmesini sınırlamak; kişisel bilgi içermez</td><td>1 yıl</td></tr>
+<tr><td><code>voted</code>, <code>pvoted</code></td><td>İşlevsel, yerel depolama</td><td>Oynanışlara ve anketlere oy verdiğinizde</td><td>Hangi oynanışlara ve anketlere oy verdiğinizi bu cihazda hatırlamak ve oy formunu tekrar göstermemek</td><td>Siz silene kadar</td></tr>
 </tbody></table></div>
 <div class="note"><b>Analitik, reklam ve takip çerezi kullanılmaz.</b> Sitede ziyaretçi davranışını izleyen, profilleyen veya reklam amaçlı hiçbir çerez yoktur.</div>
 
@@ -41,7 +41,7 @@
 <li><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Gizlilik Politikası</a></li>
 <li><a href="https://store.steampowered.com/privacy_agreement/" target="_blank" rel="noopener">Steam (Valve) Gizlilik Politikası</a></li>
 </ul>
-<p>Kick, YouTube, Instagram ve Discord bağlantılarına tıkladığınızda bu platformlar kendi çerezlerini yerleştirebilir; onların politikaları geçerli olur.</p>
+<p>Oy verirken bot doğrulaması etkinleştirilmişse Cloudflare Turnstile yüklenir; güvenlik amacıyla çalışır ve Cloudflare’ın kendi gizlilik politikası geçerlidir. Kick, YouTube, Instagram ve Discord bağlantılarına tıkladığınızda bu platformlar kendi çerezlerini yerleştirebilir; onların politikaları geçerli olur.</p>
 
 <h2>4. Rıza</h2>
 <p>Yukarıdaki çerezler, sunduğumuz hizmetin sizin istediğiniz işlevi (oy verme, yönetim girişi) için gerekli olduğundan ayrıca açık rıza talep edilmez. İleride analitik, reklam veya pazarlama amaçlı bir çerez kullanmamız hâlinde bunları yalnızca önceden açık rızanızı alarak ve bu politikayı güncelleyerek kullanırız.</p>
@@ -58,9 +58,9 @@
 
 <h2>7. Değişiklikler</h2>
 <p>Bu politika, Site’de kullanılan teknolojiler değiştikçe güncellenebilir. Güncel sürüm her zaman bu sayfada yayınlanır.</p>
-<p><a href="/gizlilik">Gizlilik Politikası →</a></p>
+<p><a href="/gizlilik">Gizlilik Politikası →</a> · <a href="/kosullar">Kullanım Koşulları →</a></p>
 </main>
-<footer><div class="fr"><span>© Oscoliat · OscoMatik</span><span><a href="/">Ana sayfa</a><a href="/gizlilik">Gizlilik politikası</a><a href="/cerez">Çerez politikası</a></span></div></footer>
+<footer><div class="fr"><span>© Oscoliat · OscoMatik</span><span><a href="/">Ana sayfa</a><a href="/gizlilik">Gizlilik politikası</a><a href="/cerez">Çerez politikası</a><a href="/kosullar">Kullanım koşulları</a></span></div></footer>
 </div>
 </body>
 </html>
