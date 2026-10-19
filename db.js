@@ -51,9 +51,10 @@ CREATE TABLE IF NOT EXISTS votes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   play_id INTEGER NOT NULL REFERENCES plays(id) ON DELETE CASCADE,
   score REAL NOT NULL CHECK(score >= 0 AND score <= 10),
-  voter TEXT NOT NULL, ip TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  voter TEXT NOT NULL, ip TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP, team TEXT,
   UNIQUE(play_id, voter));
 `);
+try { db.exec('ALTER TABLE votes ADD COLUMN team TEXT'); } catch (e) { /* sütun zaten var */ }
 if (!REMOTE) db.pragma('foreign_keys = ON');
 db.catalog = require('./catalog');
 module.exports = db;
